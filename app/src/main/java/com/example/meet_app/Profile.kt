@@ -1,31 +1,40 @@
 package com.example.meet_app
 
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
+private val optionsList:ArrayList<OptionsData> = ArrayList()
 
 @Composable
 fun Profile(navController: NavController, name: String?){
+    val fonts = getFonts()
         val text by remember {
         mutableStateOf("")
     }
@@ -39,6 +48,10 @@ fun Profile(navController: NavController, name: String?){
             title ={
                 Text(
                      text = "Profile",
+                    style = TextStyle(
+                        fontFamily = fonts,
+                        fontWeight = FontWeight.SemiBold
+                    )
                    )
             },
             backgroundColor = MaterialTheme.colors.background,
@@ -70,7 +83,7 @@ fun Profile(navController: NavController, name: String?){
             )  {
                 Image(
                     modifier = Modifier
-                        .size(72.dp)
+                        .size(65.dp)
                         .clip(shape = CircleShape),
                     painter = painterResource(id = R.drawable.profile),
                     contentDescription = "Image"
@@ -88,19 +101,23 @@ fun Profile(navController: NavController, name: String?){
                         Text(
                             text ="Cephas Zulu",
                             style = TextStyle(
-                                fontSize = 22.sp
+                                fontSize = 22.sp,
+                                fontFamily = fonts,
+                                fontWeight = FontWeight.SemiBold
                             ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
+//                        Spacer(modifier = Modifier.height(1.dp))
 
                         Text(
                             text = "@cazterk",
                             style = TextStyle(
                                 fontSize = 14.sp,
                                 color = Color.Gray,
-                                letterSpacing = (0.8).sp
+                                letterSpacing = (0.8).sp,
+                                fontFamily = fonts,
+                                fontWeight = FontWeight.Normal
                             ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -116,9 +133,139 @@ fun Profile(navController: NavController, name: String?){
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(32.dp))
+            Column {
+                ShowOptionsList()
+
+            }
+
         }
 
     }
 
    
 }
+@Composable
+fun ShowOptionsList(context: Context = LocalContext.current.applicationContext){
+    var listPrepared by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.Default){
+            optionsList.clear()
+
+            profileOptions()
+            listPrepared = true
+        }
+    }
+    if(listPrepared){
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            items(optionsList) { item ->
+                OptionsItemStyle(item = item, context = context)
+            }
+        }
+    }
+}
+@Composable
+private fun OptionsItemStyle(item:OptionsData, context:Context){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = true) {
+                Toast
+                    .makeText(context, item.title, Toast.LENGTH_SHORT)
+                    .show()
+            }
+            .padding(all = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // icon
+        Icon(
+            modifier = Modifier
+                .size(32.dp),
+            imageVector = item.icon,
+            contentDescription = item.title,
+            tint = MaterialTheme.colors.primary
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(weight = 3f, fill = false)
+                    .padding(start = 16.dp)
+            ) {
+                // title
+                Text(
+                    text = item.title,
+                    style= TextStyle(
+                        fontSize = 18.sp,
+                        fontFamily = fonts,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                // description
+                Text(
+                    text = item.description,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        letterSpacing =(0.8).sp,
+                        fontFamily = fonts,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Gray
+                    )
+                )
+                // right arrow icon
+                Icon(
+                    modifier = Modifier
+                        .weight(weight = 1f, fill = false),
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = item.title,
+                    tint = Color.Black.copy(alpha = 0.70f)
+                )
+            }
+        }
+    }
+
+}
+
+private fun profileOptions(){
+    val icons = Icons.Outlined
+
+    optionsList.add(
+        OptionsData(
+            icon = icons.Person,
+            title = "Account",
+            description = "Manage your account"
+
+        )
+    )
+
+    optionsList.add(
+        OptionsData(
+            icon = icons.Search,
+            title = "Connections",
+            description = "Font your connections here"
+
+        )
+    )
+
+    optionsList.add(
+        OptionsData(
+            icon = icons.Settings,
+            title = "Settings",
+            description = "App Settings"
+        )
+    )
+}
+
+data class OptionsData(val icon: ImageVector, val title: String, val description: String)
