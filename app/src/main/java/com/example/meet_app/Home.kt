@@ -3,14 +3,18 @@ package com.example.meet_app
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -19,8 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+
+private val connectionsList: ArrayList<OptionsData> = ArrayList()
+
 @Composable
-fun Home(navController: NavController){
+fun Home(navController: NavController) {
     var text by remember {
         mutableStateOf("")
     }
@@ -28,109 +35,213 @@ fun Home(navController: NavController){
     var name = "Cephas"
     var username = "@cazterk"
 
+    // upper options
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Gray)
+            .background(color = Color.Transparent)
 
     ) {
-
-
-    Column( 
-        modifier = Modifier
-            .padding(32.dp)
-    ) {
-        Row (
+        Spacer(modifier = Modifier.height(60.dp))
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .padding(top = 38.dp)
-                .background(color = Color.White),
+                .padding(16.dp)
+                .height(100.dp),
 
-            verticalAlignment = Alignment.CenterVertically
-            ){
-            Spacer(modifier = Modifier.width(16.dp))
-              Image(
-                  modifier = Modifier
-                      .size(55.dp)
-                      .clip(shape = CircleShape)
-                      ,
-                  painter = painterResource(id = R.drawable.profile) , 
-                  contentDescription = "Image" 
-              )
+            shape = RoundedCornerShape(10.dp)
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+
+                    .background(color = Color.White),
+
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Image(
+                    modifier = Modifier
+                        .size(55.dp)
+                        .clip(shape = CircleShape),
+                    painter = painterResource(id = R.drawable.profile),
+                    contentDescription = "Image"
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(weight = 3f, fill = false)
+                        .padding(start = 16.dp)
+                ) {
+                    Text(
+                        text = "Welcome $name!",
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "Get started with connections",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            letterSpacing = (0.1).sp,
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                }
+
+
+            }
+        }
+
+
+        //  main options
+        Card() {
             Column(
                 modifier = Modifier
-                    .weight(weight = 3f, fill = false)
-                    .padding(start = 16.dp)
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = "Welcome $name",
-                    style =  TextStyle(
-                        fontSize = 22.sp,
+
+                    text = "Near By People",
+                    style = TextStyle(
+                        fontSize = 16.sp,
                         fontFamily = fonts,
                         fontWeight = FontWeight.SemiBold
-                    ),
-                    maxLines= 1,
-                    overflow = TextOverflow.Ellipsis
+                    )
                 )
-                Text(
-                    text = "Get started with connections",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        letterSpacing = (0.8).sp,
-                        fontFamily = fonts,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                
+                Spacer(modifier = Modifier.height(16.dp))
+                connectionsOptions()
+                Spacer(modifier = Modifier.height(16.dp))
+                Column() {
+                    Button(
+                        modifier = Modifier.width(150.dp),
+                        onClick = {
+                            navController.navigate(Screen.Profile.withArgs(text))
+                        })
+
+                    {
+                        Text("Profile")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        modifier = Modifier.width(150.dp),
+                        onClick = {
+                            navController.navigate(Screen.Login.withArgs(text))
+                        })
+                    {
+                        Text(text = "Login")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        modifier = Modifier.width(150.dp),
+                        onClick = {
+                            navController.navigate(Screen.Message.withArgs(text))
+                        })
+                    {
+                        Text(text = "Message")
+                    }
+                }
+
             }
-            
+
         }
-        
+
     }
-    
+
+}
+
+@Composable
+private fun connectionsOptions() {
+    val listOfConnectionsData = listOf(
+        connectionsData("John Doe", painterResource(R.drawable.profile), "01/01/2022"),
+        connectionsData("Jane Doe", painterResource(R.drawable.profile), "01/01/2022"),
+        connectionsData(" Smith Daniel", painterResource(R.drawable.profile), "01/01/2022"),
+        connectionsData(" Annie Daniel", painterResource(R.drawable.profile), "01/01/2021")
+    )
     Column(
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
 
+        ) {
+        LazyColumn {
+            items(listOfConnectionsData.size) { index ->
+                connectionsListItems(listOfConnectionsData[index])
+            }
+        }
+    }
+}
+
+@Composable
+fun connectionsListItems(connectionsData: connectionsData) {
+    val date = connectionsData.date
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 50.dp)
-    ) {
-        Text("this is the main screen")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                navController.navigate(Screen.Profile.withArgs(text))
-            })
+            .padding(top = 10.dp)
+    )
+    {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(shape = CircleShape),
+                painter = connectionsData.image,
+                contentDescription = ""
 
-        {
-            Text("Profile")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                navController.navigate(Screen.Login.withArgs(text))
-            })
-        {
-             Text(text = "Login")
-        }
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(weight = 3f, fill = false)
+                        .padding(start = 16.dp)
+                ) {
+                    Text(
+                        text = connectionsData.fullName,
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "Date Connected: $date",
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            letterSpacing = (0.1).sp,
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                navController.navigate(Screen.Message.withArgs(text))
-            })
-        {
-            Text(text = "Message")
+                }
+            }
         }
     }
 
-  }
 }
+
+data class connectionsData(val fullName: String, val image: Painter, val date: String)
