@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -42,21 +41,21 @@ fun Home(navController: NavController) {
             .background(color = Color.Transparent)
 
     ) {
-        Spacer(modifier = Modifier.height(60.dp))
-        Card(
+        Spacer(modifier = Modifier.height(30.dp))
+        Box(
             modifier = Modifier
                 .padding(16.dp)
                 .height(100.dp),
 
-            shape = RoundedCornerShape(10.dp)
+//            shape = RoundedCornerShape(10.dp)
 
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
+                    .fillMaxHeight(),
 
-                    .background(color = Color.White),
+
 
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -165,10 +164,10 @@ fun Home(navController: NavController) {
 @Composable
 private fun connectionsOptions() {
     val listOfConnectionsData = listOf(
-        connectionsData("John Doe", painterResource(R.drawable.profile), "01/01/2022"),
-        connectionsData("Jane Doe", painterResource(R.drawable.profile), "01/01/2022"),
-        connectionsData(" Smith Daniel", painterResource(R.drawable.profile), "01/01/2022"),
-        connectionsData(" Annie Daniel", painterResource(R.drawable.profile), "01/01/2021")
+        connectionsData("John Doe", painterResource(R.drawable.person1), "01/01/2022"),
+        connectionsData("Jane Doe", painterResource(R.drawable.person2), "01/01/2022"),
+        connectionsData(" Smith Daniel", painterResource(R.drawable.person3), "01/01/2022"),
+        connectionsData(" Annie Daniel", painterResource(R.drawable.person4), "01/01/2021")
     )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -219,7 +218,8 @@ fun connectionsListItems(connectionsData: connectionsData) {
                         style = TextStyle(
                             fontSize = 16.sp,
                             fontFamily = fonts,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
