@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.meet_app.ui.theme.fonts
+import com.example.meet_app.ui.theme.getFonts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
