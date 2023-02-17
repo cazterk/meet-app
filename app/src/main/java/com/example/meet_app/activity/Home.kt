@@ -1,4 +1,4 @@
-package com.example.meet_app
+package com.example.meet_app.activity
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +21,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.meet_app.R
+import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 
@@ -167,7 +169,7 @@ fun Home(navController: NavController) {
 private fun connectionsOptions() {
     val listOfConnectionsData = listOf(
         connectionsData("John Doe", painterResource(R.drawable.person1), "01/01/2022"),
-        connectionsData("Jane Doe", painterResource(R.drawable.person2), "01/01/2022"),
+        connectionsData("Martin James", painterResource(R.drawable.person2), "01/01/2022"),
         connectionsData(" Smith Daniel", painterResource(R.drawable.person3), "01/01/2022"),
         connectionsData(" Annie Daniel", painterResource(R.drawable.person4), "01/01/2021")
     )

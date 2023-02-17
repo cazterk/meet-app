@@ -2,8 +2,13 @@ package com.example.meet_app
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.meet_app.activity.Home
+import com.example.meet_app.activity.Profile
+import com.example.meet_app.navigation.Screen
 
 @Composable
 fun Navigation(){

@@ -1,4 +1,4 @@
-package com.example.meet_app
+package com.example.meet_app.activity
 
 
 import android.content.Context
@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.meet_app.R
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 import kotlinx.coroutines.Dispatchers
