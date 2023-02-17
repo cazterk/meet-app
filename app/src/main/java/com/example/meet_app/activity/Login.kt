@@ -13,18 +13,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.meet_app.viewmodel.LoginViewModel
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Login(navController: NavController, name: String?) {
-
+    var viewModel: LoginViewModel by viewModel()
     var username by remember {
-        mutableStateOf("")
+        mutableStateOf(TextFieldValue(""))
     }
     var isVisible by remember {
         mutableStateOf(false)
@@ -64,7 +68,7 @@ fun Login(navController: NavController, name: String?) {
         OutlinedTextField(
             value = username,
             label = { Text("Number or Username") },
-            onValueChange = { username = it },
+            onValueChange = { newValue -> username = newValue },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -88,6 +92,9 @@ fun Login(navController: NavController, name: String?) {
         )
 
         Button(
+            onClick = {
+//                viewModel.loginUser(username.text, getString(R.string.jwt_token))
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -96,11 +103,8 @@ fun Login(navController: NavController, name: String?) {
                     end.linkTo(parent.end)
                     top.linkTo(usernameTextField.bottom, margin = 20.dp)
                 },
-            enabled =
-            username.isNotEmpty(),
-            onClick = {
-                navController.navigateUp()
-            })
+
+            )
         {
             Text("Login")
         }
@@ -134,98 +138,6 @@ fun Login(navController: NavController, name: String?) {
 
     }
 
-//    Column(
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(40.dp)
-//    ) {
-//        Text(
-//            text = "MeetApp",
-//            fontWeight = FontWeight.SemiBold,
-//            style= TextStyle(
-//                fontSize = 25.sp
-//            )
-//        )
-//        Spacer(modifier = Modifier.height(20.dp))
-//        OutlinedTextField(
-//            value = emailUsernameFieldState,
-//            label = {
-//                Text("Email or Username")
-//                    },
-//            onValueChange ={
-//                emailUsernameFieldState = it
-//            },
-//            singleLine = true,
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            keyboardOptions = KeyboardOptions(
-//                keyboardType = KeyboardType.Text,
-//                imeAction = ImeAction.Next
-//            ),
-//            keyboardActions = KeyboardActions(
-//                onNext = {
-//                    focusRequester.requestFocus()
-//                }
-//            )
-//
-//        )
-//        Spacer(modifier = Modifier.height(20.dp))
-//        OutlinedTextField(
-//            value = passwordFieldState,
-//            label = {
-//                Text("Password")},
-//            onValueChange ={
-//                passwordFieldState = it
-//            },
-//            placeholder = { "Enter your password" },
-//            singleLine = true,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .focusRequester(focusRequester),
-//            keyboardOptions = KeyboardOptions(
-//                keyboardType = KeyboardType.Password
-//            ),
-//            keyboardActions = KeyboardActions(
-//                onDone = {
-//                    keyboardController?.hide()
-//                }
-//            ),
-//            visualTransformation = if (isVisible){
-//                    VisualTransformation.None
-//
-//            }else {
-//                PasswordVisualTransformation()
-//            },
-//            trailingIcon =  {
-//                IconButton(onClick = { isVisible = !isVisible}) {
-//                    Icon(
-//                        imageVector = if (isVisible){
-//                        Icons.Filled.Visibility
-//                        } else {
-//                            Icons.Filled.VisibilityOff
-//                        }, contentDescription = null
-//                    )
-//                }
-//            }
-//
-//
-//        )
-//        Spacer(modifier = Modifier.height(20.dp))
-//        Button(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(50.dp),
-//            enabled =
-//                    emailUsernameFieldState.isNotEmpty()
-//                    && passwordFieldState.isNotEmpty(),
-//            onClick = {
-//                navController.navigateUp()
-//            })
-//        {
-//            Text("Login")
-//        }
-//    }
 }
+
+
