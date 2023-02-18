@@ -50,6 +50,7 @@ android {
 
 dependencies {
 
+    def nav_version = "2.5.3"
     def stream_version ='5.4.0'
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -66,7 +67,14 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
-    implementation "androidx.navigation:navigation-compose:2.5.3"
+
+    // compose navigation
+    implementation "androidx.navigation:navigation-compose:$nav_version"
+    // kotlin navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+
+    // gms
     implementation 'com.google.android.gms:play-services-nearby:18.4.0'
 
     // stream sdk

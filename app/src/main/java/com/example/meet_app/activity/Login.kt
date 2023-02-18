@@ -23,6 +23,10 @@ import androidx.navigation.NavController
 import com.example.meet_app.viewmodel.LoginViewModel
 
 
+
+
+
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Login(navController: NavController, name: String?) {
@@ -93,7 +97,7 @@ fun Login(navController: NavController, name: String?) {
 
         Button(
             onClick = {
-//                viewModel.loginUser(username.text, getString(R.string.jwt_token))
+                viewModel.loginUser(username.text,getString(R.string.jwt_token))
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -139,5 +143,18 @@ fun Login(navController: NavController, name: String?) {
     }
 
 }
+fun getString(string: Int): String {
+    return string.toString()
+}
+
+
+
+
+//
+
+
+
+
+
 
 
