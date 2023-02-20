@@ -51,7 +51,8 @@ android {
 dependencies {
 
     def nav_version = "2.5.3"
-    def stream_version ='5.4.0'
+    def stream_version = "5.4.0"
+    def compose_hilt_version = "2.45"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
@@ -70,6 +71,7 @@ dependencies {
 
     // compose navigation
     implementation "androidx.navigation:navigation-compose:$nav_version"
+
     // kotlin navigation
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
@@ -85,7 +87,9 @@ dependencies {
     // client only
     implementation "io.getstream:stream-chat-android-client:$stream_version"
 
-   // dagger - hilt
-    implementation 'com.google.dagger:hilt-android:2.45'
-    kapt 'com.google.dagger:hilt-compiler:2.45'
+    // dagger - hilt
+    implementation "com.google.dagger:hilt-android:$compose_hilt_version"
+    implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
+    kapt "com.google.dagger:hilt-compiler:$compose_hilt_version"
+    kapt "androidx.hilt:hilt-compiler:1.0.0"
 }

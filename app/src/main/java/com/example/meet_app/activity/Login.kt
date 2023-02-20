@@ -18,9 +18,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.viewmodel.LoginViewModel
+
+//import com.example.meet_app.viewmodel.LoginViewModel
 
 
 
@@ -29,8 +31,13 @@ import com.example.meet_app.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Login(navController: NavController, name: String?) {
-    var viewModel: LoginViewModel by viewModel()
+
+fun Login(
+    navController: NavController,
+    name: String?,
+//viewModel: LoginViewModel = hiltViewModel()
+) {
+    val viewModel = hiltViewModel<LoginViewModel>()
     var username by remember {
         mutableStateOf(TextFieldValue(""))
     }
