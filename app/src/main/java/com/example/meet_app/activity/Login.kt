@@ -104,7 +104,7 @@ fun Login(
 
         Button(
             onClick = {
-                viewModel.loginUser(username.text,getString(R.string.jwt_token))
+                viewModel.loginUser(username.text,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2F6dGVyayJ9.mUqxgxQtLkdE4kEEAjTdOAbTNEKw6LdSIfyUgdzHh-8")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -150,8 +150,8 @@ fun Login(
     }
 
 }
-fun getString(string: Int): String {
-    return string.toString()
+fun getString(string: String): String {
+    return string
 }
 
 
