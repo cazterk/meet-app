@@ -1,44 +1,38 @@
-package com.example.meet_app
+package com.example.meet_app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.meet_app.viewmodel.LoginViewModel
-
-//import com.example.meet_app.viewmodel.LoginViewModel
+import com.example.meet_app.R
 
 
-
-
-
-
-@OptIn(ExperimentalComposeUiApi::class)
+//@OptIn(ExperimentalComposeUiApi::class)
 @Composable
+fun Login(navController: NavController, name: String?) {
 
-fun Login(
-    navController: NavController,
-    name: String?,
-//viewModel: LoginViewModel = hiltViewModel()
-) {
-    val viewModel = hiltViewModel<LoginViewModel>()
     var username by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var password by remember {
         mutableStateOf(TextFieldValue(""))
     }
     var isVisible by remember {
@@ -48,7 +42,7 @@ fun Login(
     val focusRequester = remember {
         FocusRequester()
     }
-    val keyboardController = LocalSoftwareKeyboardController.current
+//    val keyboardController = LocalSoftwareKeyboardController.current
 
     val showProgress: Boolean by remember {
         mutableStateOf(false)
@@ -60,7 +54,7 @@ fun Login(
 
     ) {
         val (
-            logo, usernameTextField, btnLogin, registerLink, progressBar
+            logo, usernameTextField, passwordTextField, btnLogin, registerLink, progressBar
         ) = createRefs()
 
         Image(
@@ -72,7 +66,7 @@ fun Login(
                 .constrainAs(logo) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    top.linkTo(parent.top, margin = 150.dp)
+                    top.linkTo(parent.top, margin = 30.dp)
                 }
         )
 
@@ -92,19 +86,49 @@ fun Login(
                 keyboardType = KeyboardType.Text,
 
                 ),
-
-//            keyboardActions = KeyboardActions(
-//                onNext = {
-//                    focusRequester.requestFocus()
-//                }
-//            )
-//
-//        )
         )
+
+
+        OutlinedTextField(
+            value = password,
+            label = { Text("Enter Password") },
+            onValueChange = { newValue -> password = newValue },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(passwordTextField) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(usernameTextField.bottom, margin = 20.dp)
+                },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+
+                ),
+            visualTransformation = if (isVisible) {
+                VisualTransformation.None
+
+            } else {
+                PasswordVisualTransformation()
+            },
+            trailingIcon = {
+                IconButton(onClick = { isVisible = !isVisible }) {
+                    Icon(
+                        imageVector = if (isVisible) {
+                            Icons.Filled.Visibility
+                        } else {
+                            Icons.Filled.VisibilityOff
+                        }, contentDescription = null
+                    )
+                }
+            }
+
+        )
+
 
         Button(
             onClick = {
-                viewModel.loginUser(username.text,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2F6dGVyayJ9.mUqxgxQtLkdE4kEEAjTdOAbTNEKw6LdSIfyUgdzHh-8")
+//                viewModel.loginUser(username.text,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2F6dGVyayJ9.mUqxgxQtLkdE4kEEAjTdOAbTNEKw6LdSIfyUgdzHh-8")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -112,7 +136,7 @@ fun Login(
                 .constrainAs(btnLogin) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    top.linkTo(usernameTextField.bottom, margin = 20.dp)
+                    top.linkTo(passwordTextField.bottom, margin = 20.dp)
                 },
 
             )
@@ -150,11 +174,6 @@ fun Login(
     }
 
 }
-fun getString(string: String): String {
-    return string
-}
-
-
 
 
 //

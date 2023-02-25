@@ -1,4 +1,4 @@
-package com.example.meet_app.activity
+package com.example.meet_app.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,8 +26,6 @@ import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 
-
-private val connectionsList: ArrayList<OptionsData> = ArrayList()
 
 @Composable
 fun Home(navController: NavController) {
@@ -58,7 +56,6 @@ fun Home(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(),
-
 
 
                 verticalAlignment = Alignment.CenterVertically
@@ -155,6 +152,15 @@ fun Home(navController: NavController) {
                     {
                         Text(text = "Message")
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        modifier = Modifier.width(150.dp),
+                        onClick = {
+                            navController.navigate(Screen.Register.withArgs(text))
+                        })
+                    {
+                        Text(text = "Register")
+                    }
                 }
 
             }
@@ -224,7 +230,7 @@ fun connectionsListItems(connectionsData: connectionsData) {
                             fontFamily = fonts,
                             fontWeight = FontWeight.SemiBold,
 
-                        ),
+                            ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

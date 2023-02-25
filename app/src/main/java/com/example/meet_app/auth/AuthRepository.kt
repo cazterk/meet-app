@@ -1,5 +1,6 @@
 package com.example.meet_app.auth
 
+
 interface AuthRepository {
     suspend fun signUp(
         username: String,

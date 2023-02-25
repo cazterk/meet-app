@@ -1,4 +1,4 @@
-package com.example.meet_app
+package com.example.meet_app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button

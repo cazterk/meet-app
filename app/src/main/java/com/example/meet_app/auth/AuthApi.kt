@@ -13,7 +13,7 @@ interface AuthApi {
     )
 
     @POST("sigin")
-    suspend fun siginIn(
+    suspend fun signIn(
         @Body request: LoginRequest
     ):TokenResponse
 

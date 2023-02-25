@@ -1,4 +1,4 @@
-package com.example.meet_app.activity
+package com.example.meet_app.ui.screens
 
 
 import android.content.Context
@@ -174,7 +174,7 @@ fun ShowOptionsList(context: Context = LocalContext.current.applicationContext){
     }
 }
 @Composable
-private fun OptionsItemStyle(item:OptionsData, context:Context){
+private fun OptionsItemStyle(item: OptionsData, context:Context){
     Row(
         modifier = Modifier
             .fillMaxWidth()

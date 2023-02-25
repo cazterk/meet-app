@@ -3,6 +3,7 @@ package com.example.meet_app.auth
 import android.content.SharedPreferences
 import retrofit2.HttpException
 
+
 class AuthRepositoryImpl(
     private val api: AuthApi, private val prefs: SharedPreferences
 ) : AuthRepository {
@@ -33,7 +34,7 @@ class AuthRepositoryImpl(
 
     override suspend fun signIn(username: String, password: String): AuthResult<Unit> {
         return try {
-            val response = api.siginIn(
+            val response = api.signIn(
                 request = LoginRequest(
                     username = username, password = password
                 )

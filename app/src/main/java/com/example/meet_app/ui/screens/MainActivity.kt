@@ -1,4 +1,4 @@
-package com.example.meet_app.activity
+package com.example.meet_app.ui.screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,7 +17,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             navController = rememberNavController()
             Navigation(navController = navController)
+
         }
     }
+
+
 }
 

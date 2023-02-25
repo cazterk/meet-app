@@ -1,17 +1,18 @@
 package com.example.meet_app.di
 
-import android.content.Context
-import com.example.meet_app.R
+import android.app.Application
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
+import com.example.meet_app.auth.AuthApi
+import com.example.meet_app.auth.AuthRepository
+import com.example.meet_app.auth.AuthRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.getstream.chat.android.client.ChatClient
-import io.getstream.chat.android.client.logger.ChatLogLevel
-import io.getstream.chat.android.offline.model.message.attachments.UploadAttachmentsNetworkType
-import io.getstream.chat.android.offline.plugin.configuration.Config
-import io.getstream.chat.android.offline.plugin.factory.StreamOfflinePluginFactory
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 
@@ -20,22 +21,25 @@ import javax.inject.Singleton
 object AppModule {
 
     @Provides
-    fun provideOfflinePluginFactory(@ApplicationContext context: Context) =
-        StreamOfflinePluginFactory(
-            config = Config(
-                backgroundSyncEnabled = true,
-                userPresence =true,
-                persistenceEnabled = true,
-                uploadAttachmentsNetworkType = UploadAttachmentsNetworkType.NOT_ROAMING
-            ),
-            appContext = context
-        )
-
     @Singleton
+    fun provideAuthApi(): AuthApi {
+        return Retrofit.Builder()
+            .baseUrl("http://localhost:8080")
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create()
+
+    }
+
     @Provides
-    fun provideChatClient(@ApplicationContext context: Context, offlinePluginFactory: StreamOfflinePluginFactory) =
-            ChatClient.Builder(context.getString(R.string.api_key), context)
-                .withPlugin(offlinePluginFactory)
-                .logLevel(ChatLogLevel.ALL)
-                .build()
+    @Singleton
+    fun provideSharedPref(app: Application): SharedPreferences {
+        return app.getSharedPreferences("pref", MODE_PRIVATE)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRespository(api: AuthApi, prefs: SharedPreferences): AuthRepository {
+        return AuthRepositoryImpl(api, prefs)
+    }
 }
