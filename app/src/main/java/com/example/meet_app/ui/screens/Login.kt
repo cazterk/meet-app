@@ -1,5 +1,6 @@
 package com.example.meet_app.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,31 +11,67 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.R
+import com.example.meet_app.auth.AuthResult
+import com.example.meet_app.navigation.Screen
+import com.example.meet_app.ui.auth.AuthUIEvent
+import com.example.meet_app.viewmodel.AuthViewModel
 
 
 //@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Login(navController: NavController, name: String?) {
+fun Login(
+    navController: NavController,
+    name: String?,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
 
-    var username by remember {
-        mutableStateOf(TextFieldValue(""))
+    var text by remember {
+        mutableStateOf("")
     }
-    var password by remember {
-        mutableStateOf(TextFieldValue(""))
+    val state = viewModel.state
+    val context = LocalContext.current
+    LaunchedEffect(viewModel, context) {
+        viewModel.authResults.collect { result ->
+            when (result) {
+                is AuthResult.Authorized -> {
+                    navController.navigate(Screen.Home.withArgs(text)) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+                is AuthResult.Unauthorized -> {
+                    Toast.makeText(
+                        context,
+                        "You are not authorized",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                is AuthResult.UnknownError -> {
+                    Toast.makeText(
+                        context,
+                        "An unknown error occurred",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
+
     var isVisible by remember {
         mutableStateOf(false)
     }
@@ -71,9 +108,11 @@ fun Login(navController: NavController, name: String?) {
         )
 
         OutlinedTextField(
-            value = username,
+            value = state.signInUsername,
             label = { Text("Number or Username") },
-            onValueChange = { newValue -> username = newValue },
+            onValueChange = {
+                viewModel.onEvent(AuthUIEvent.SignInUsernameChanged(it))
+            },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,9 +129,11 @@ fun Login(navController: NavController, name: String?) {
 
 
         OutlinedTextField(
-            value = password,
+            value = state.signInPassword,
             label = { Text("Enter Password") },
-            onValueChange = { newValue -> password = newValue },
+            onValueChange = {
+                viewModel.onEvent(AuthUIEvent.SignInPasswordChanged(it))
+            },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -128,7 +169,7 @@ fun Login(navController: NavController, name: String?) {
 
         Button(
             onClick = {
-//                viewModel.loginUser(username.text,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2F6dGVyayJ9.mUqxgxQtLkdE4kEEAjTdOAbTNEKw6LdSIfyUgdzHh-8")
+                viewModel.onEvent(AuthUIEvent.SignIn)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -159,7 +200,7 @@ fun Login(navController: NavController, name: String?) {
                 fontSize = 15.sp
             )
         )
-        if (showProgress) {
+        if (state.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier
                     .constrainAs(progressBar) {

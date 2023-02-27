@@ -24,7 +24,7 @@ object AppModule {
     @Singleton
     fun provideAuthApi(): AuthApi {
         return Retrofit.Builder()
-            .baseUrl("http://localhost:8080")
+            .baseUrl("http://192.168.118.136:8080/")
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create()
@@ -34,12 +34,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSharedPref(app: Application): SharedPreferences {
-        return app.getSharedPreferences("pref", MODE_PRIVATE)
+        return app.getSharedPreferences("prefs", MODE_PRIVATE)
     }
 
     @Provides
     @Singleton
-    fun provideAuthRespository(api: AuthApi, prefs: SharedPreferences): AuthRepository {
+    fun provideAuthRepository(api: AuthApi, prefs: SharedPreferences): AuthRepository {
         return AuthRepositoryImpl(api, prefs)
     }
 }

@@ -20,7 +20,7 @@ class AuthViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    private var state by mutableStateOf(AuthState())
+    var state by mutableStateOf(AuthState())
 
     private val resultChannel = Channel<AuthResult<Unit>>()
     val authResults = resultChannel.receiveAsFlow()
@@ -29,7 +29,7 @@ class AuthViewModel @Inject constructor(
         authenticate()
     }
 
-    fun OnEvent(event: AuthUIEvent) {
+    fun onEvent(event: AuthUIEvent) {
         when (event) {
             is AuthUIEvent.SignInUsernameChanged -> {
                 state = state.copy(signInUsername = event.value)

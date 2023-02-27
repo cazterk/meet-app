@@ -12,7 +12,7 @@ interface AuthApi {
         @Body request: RegisterRequest
     )
 
-    @POST("sigin")
+    @POST("signin")
     suspend fun signIn(
         @Body request: LoginRequest
     ):TokenResponse

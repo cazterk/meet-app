@@ -1,6 +1,7 @@
 package com.example.meet_app.ui.screens
 
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -22,12 +24,53 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.R
+import com.example.meet_app.auth.AuthResult
+import com.example.meet_app.navigation.Screen
+import com.example.meet_app.ui.auth.AuthUIEvent
+import com.example.meet_app.viewmodel.AuthViewModel
 
 
 @Composable
-fun Register(navController: NavController, name: String?) {
+fun Register(
+    navController: NavController,
+    name: String?,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
+    var text by remember {
+        mutableStateOf("")
+    }
+    val state = viewModel.state
+    val context = LocalContext.current
+    LaunchedEffect(viewModel, context) {
+        viewModel.authResults.collect { result ->
+            when (result) {
+                is AuthResult.Authorized -> {
+                    navController.navigate(Screen.Home.withArgs(text)) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+                is AuthResult.Unauthorized -> {
+                    Toast.makeText(
+                        context,
+                        "You are not authorized",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                is AuthResult.UnknownError -> {
+                    Toast.makeText(
+                        context,
+                        "An unknown error occurred",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
 
     var username by remember {
         mutableStateOf(TextFieldValue(""))
@@ -60,7 +103,8 @@ fun Register(navController: NavController, name: String?) {
 
     ) {
         val (
-            logo, usernameTextField,
+            logo,
+            usernameTextField,
             firstNameTextField,
             lastNameTextField,
             passwordTextField,
@@ -83,9 +127,11 @@ fun Register(navController: NavController, name: String?) {
         )
 
         OutlinedTextField(
-            value = firstName,
-            label = { Text("Number or Username") },
-            onValueChange = { newValue -> lastName = newValue },
+            value = state.signUpFirstName,
+            label = { Text("First name") },
+            onValueChange = {
+                viewModel.onEvent(AuthUIEvent.SignUpFirstNameChanged(it))
+            },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,9 +147,11 @@ fun Register(navController: NavController, name: String?) {
         )
 
         OutlinedTextField(
-            value = lastName,
-            label = { Text("Number or Username") },
-            onValueChange = { newValue -> lastName = newValue },
+            value = state.signUpLastName,
+            label = { Text("Last Name") },
+            onValueChange = {
+                viewModel.onEvent(AuthUIEvent.SignUpLastNameChanged(it))
+            },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,9 +167,11 @@ fun Register(navController: NavController, name: String?) {
         )
 
         OutlinedTextField(
-            value = username,
-            label = { Text("Number or Username") },
-            onValueChange = { newValue -> username = newValue },
+            value = state.signUpUsername,
+            label = { Text("Username") },
+            onValueChange = {
+                viewModel.onEvent(AuthUIEvent.SignUpUsernameChanged(it))
+            },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -137,9 +187,11 @@ fun Register(navController: NavController, name: String?) {
         )
 
         OutlinedTextField(
-            value = password,
+            value = state.signUpPassword,
             label = { Text("Enter Password") },
-            onValueChange = { newValue -> password = newValue },
+            onValueChange = {
+                viewModel.onEvent(AuthUIEvent.SignUpPasswordChanged(it))
+            },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -174,7 +226,7 @@ fun Register(navController: NavController, name: String?) {
 
         Button(
             onClick = {
-//                viewModel.loginUser(username.text,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiY2F6dGVyayJ9.mUqxgxQtLkdE4kEEAjTdOAbTNEKw6LdSIfyUgdzHh-8")
+                viewModel.onEvent(AuthUIEvent.SignUp)
             },
             modifier = Modifier
                 .fillMaxWidth()
