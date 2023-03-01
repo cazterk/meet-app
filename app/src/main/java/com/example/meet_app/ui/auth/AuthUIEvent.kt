@@ -10,4 +10,5 @@ sealed class AuthUIEvent {
     data class SignInUsernameChanged(val value: String) : AuthUIEvent()
     data class SignInPasswordChanged(val value: String) : AuthUIEvent()
     object SignIn : AuthUIEvent()
+    object SignOut: AuthUIEvent()
 }

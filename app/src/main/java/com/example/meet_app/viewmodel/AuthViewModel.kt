@@ -57,6 +57,9 @@ class AuthViewModel @Inject constructor(
                 signUp()
 
             }
+            is AuthUIEvent.SignOut -> {
+                logout()
+            }
         }
     }
 
@@ -90,6 +93,15 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoading = true)
             val result = repository.authenticate()
+            resultChannel.send(result)
+            state = state.copy(isLoading = false)
+        }
+    }
+
+    private fun logout() {
+        viewModelScope.launch {
+            state = state.copy(isLoading = true)
+            val result = repository.logout()
             resultChannel.send(result)
             state = state.copy(isLoading = false)
         }

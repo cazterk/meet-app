@@ -18,6 +18,31 @@ fun Navigation(
         navController = navController,
         startDestination = Screen.Home.route
     ) {
+        // login
+        composable(
+            route = Screen.Login.route + "/{name}",
+            arguments = listOf(
+                navArgument("name") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { entry ->
+            Login(navController = navController, name = entry.arguments?.getString("name"))
+        }
+        // register
+        composable(
+            route = Screen.Register.route + "/{name}",
+            arguments = listOf(
+                navArgument("name") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { entry ->
+            Register(navController = navController, name = entry.arguments?.getString("name"))
+        }
+// home
         composable(
             route = Screen.Home.route
         ) {
@@ -25,6 +50,7 @@ fun Navigation(
 
 
         }
+        // profile
         composable(
             route = Screen.Profile.route + "/{name}",
             arguments = listOf(
@@ -37,21 +63,9 @@ fun Navigation(
         ) { entry ->
             Profile(navController = navController, name = entry.arguments?.getString("name"))
         }
-
+        // messages
         composable(
-            route = Screen.Login.route + "/{name}",
-            arguments = listOf(
-                navArgument("name") {
-                    type = NavType.StringType
-                    nullable = true
-                }
-            )
-        ) { entry ->
-            Login(navController = navController, name = entry.arguments?.getString("name"))
-        }
-
-        composable(
-            route = Screen.Message.route + "/{name}",
+            route = Screen.Messages.route + "/{name}",
             arguments = listOf(
                 navArgument("name") {
                     type = NavType.StringType
@@ -62,17 +76,6 @@ fun Navigation(
             Messages(navController = navController, name = entry.arguments?.getString("name"))
         }
 
-        composable(
-            route = Screen.Register.route + "/{name}",
-            arguments = listOf(
-                navArgument("name") {
-                    type = NavType.StringType
-                    nullable = true
-                }
-            )
-        ) { entry ->
-            Register(navController = navController, name = entry.arguments?.getString("name"))
-        }
 
     }
 }

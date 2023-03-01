@@ -1,5 +1,6 @@
 package com.example.meet_app.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,21 +15,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.R
+import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
+import com.example.meet_app.viewmodel.AuthViewModel
 
 
 @Composable
-fun Home(navController: NavController) {
+fun Home(
+    navController: NavController,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
     var text by remember {
         mutableStateOf("")
     }
@@ -36,7 +44,28 @@ fun Home(navController: NavController) {
     var name = "Cephas"
     var username = "@cazterk"
 
-    // upper options
+    val context = LocalContext.current
+    LaunchedEffect(viewModel, context) {
+        viewModel.authResults.collect { result ->
+            when (result) {
+                is AuthResult.Authorized -> {
+                    Toast.makeText(
+                        context,
+                        "Authorized",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                is AuthResult.Unauthorized -> {
+                    navController.navigate(Screen.Login.route)
+                    Toast.makeText(
+                        context,
+                        "You are not authorized",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -147,7 +176,7 @@ fun Home(navController: NavController) {
                     Button(
                         modifier = Modifier.width(150.dp),
                         onClick = {
-                            navController.navigate(Screen.Message.withArgs(text))
+                            navController.navigate(Screen.Messages.withArgs(text))
                         })
                     {
                         Text(text = "Message")
@@ -175,9 +204,21 @@ fun Home(navController: NavController) {
 private fun connectionsOptions() {
     val listOfConnectionsData = listOf(
         connectionsData("John Doe", painterResource(R.drawable.person1), "01/01/2022"),
-        connectionsData("Martin James", painterResource(R.drawable.person2), "01/01/2022"),
-        connectionsData(" Smith Daniel", painterResource(R.drawable.person3), "01/01/2022"),
-        connectionsData(" Annie Daniel", painterResource(R.drawable.person4), "01/01/2021")
+        connectionsData(
+            "Martin James",
+            painterResource(R.drawable.person2),
+            "01/01/2022"
+        ),
+        connectionsData(
+            " Smith Daniel",
+            painterResource(R.drawable.person3),
+            "01/01/2022"
+        ),
+        connectionsData(
+            " Annie Daniel",
+            painterResource(R.drawable.person4),
+            "01/01/2021"
+        )
     )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

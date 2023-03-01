@@ -48,7 +48,7 @@ fun Login(
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Screen.Home.withArgs(text))
+                    navController.navigate(Screen.Home.route)
                 }
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(

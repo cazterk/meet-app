@@ -33,12 +33,12 @@ import com.example.meet_app.ui.theme.getFonts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private val optionsList:ArrayList<OptionsData> = ArrayList()
+private val optionsList: ArrayList<OptionsData> = ArrayList()
 
 @Composable
-fun Profile(navController: NavController, name: String?){
+fun Profile(navController: NavController, name: String?) {
     val fonts = getFonts()
-        val text by remember {
+    val text by remember {
         mutableStateOf("")
     }
     Column(//
@@ -48,14 +48,14 @@ fun Profile(navController: NavController, name: String?){
     ) {
 
         TopAppBar(
-            title ={
+            title = {
                 Text(
-                     text = "Profile",
+                    text = "Profile",
                     style = TextStyle(
                         fontFamily = fonts,
                         fontWeight = FontWeight.SemiBold
                     )
-                   )
+                )
             },
             backgroundColor = MaterialTheme.colors.background,
             elevation = 4.dp,
@@ -83,7 +83,7 @@ fun Profile(navController: NavController, name: String?){
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
-            )  {
+            ) {
                 Image(
                     modifier = Modifier
                         .size(65.dp)
@@ -95,14 +95,14 @@ fun Profile(navController: NavController, name: String?){
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     Column(
                         modifier = Modifier
                             .weight(weight = 3f, fill = false)
                             .padding(start = 16.dp)
                     ) {
                         Text(
-                            text ="Cephas Zulu",
+                            text = "Cephas Zulu",
                             style = TextStyle(
                                 fontSize = 22.sp,
                                 fontFamily = fonts,
@@ -146,23 +146,26 @@ fun Profile(navController: NavController, name: String?){
 
     }
 
-   
+
 }
+
 @Composable
-fun ShowOptionsList(context: Context = LocalContext.current.applicationContext){
+fun ShowOptionsList(
+    context: Context = LocalContext.current.applicationContext,
+) {
     var listPrepared by remember {
         mutableStateOf(false)
     }
 
-    LaunchedEffect(Unit){
-        withContext(Dispatchers.Default){
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.Default) {
             optionsList.clear()
 
             profileOptions()
             listPrepared = true
         }
     }
-    if(listPrepared){
+    if (listPrepared) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -173,8 +176,9 @@ fun ShowOptionsList(context: Context = LocalContext.current.applicationContext){
         }
     }
 }
+
 @Composable
-private fun OptionsItemStyle(item: OptionsData, context:Context){
+private fun OptionsItemStyle(item: OptionsData, context: Context) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,7 +213,7 @@ private fun OptionsItemStyle(item: OptionsData, context:Context){
                 // title
                 Text(
                     text = item.title,
-                    style= TextStyle(
+                    style = TextStyle(
                         fontSize = 18.sp,
                         fontFamily = fonts,
                         fontWeight = FontWeight.Medium
@@ -221,7 +225,7 @@ private fun OptionsItemStyle(item: OptionsData, context:Context){
                     text = item.description,
                     style = TextStyle(
                         fontSize = 14.sp,
-                        letterSpacing =(0.8).sp,
+                        letterSpacing = (0.8).sp,
                         fontFamily = fonts,
                         fontWeight = FontWeight.Normal,
                         color = Color.Gray
@@ -241,9 +245,11 @@ private fun OptionsItemStyle(item: OptionsData, context:Context){
 
 }
 
-private fun profileOptions(){
-    val icons = Icons.Outlined
 
+//@Composable
+private fun profileOptions() {
+    val icons = Icons.Outlined
+//    val viewModel: AuthViewModel = hiltViewModel()
     optionsList.add(
         OptionsData(
             icon = icons.Person,
@@ -269,6 +275,22 @@ private fun profileOptions(){
             description = "App Settings"
         )
     )
+
+    optionsList.add(
+        OptionsData(
+            icon = icons.Logout,
+            title = "Logout",
+            description = "logout from this account",
+            navTo = "{viewModel.onEvent(AuthUIEvent.SignOut)}"
+
+
+        )
+    )
 }
 
-data class OptionsData(val icon: ImageVector, val title: String, val description: String)
+data class OptionsData(
+    val icon: ImageVector,
+    val title: String,
+    val description: String,
+    val navTo: String? = null
+)

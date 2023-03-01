@@ -48,11 +48,7 @@ fun Register(
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Screen.Home.withArgs(text)) {
-                        popUpTo(Screen.Home.route) {
-                            inclusive = true
-                        }
-                    }
+                    navController.navigate(Screen.Home.route)
                 }
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(
