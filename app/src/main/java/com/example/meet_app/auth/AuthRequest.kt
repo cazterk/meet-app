@@ -7,3 +7,9 @@ data class RegisterRequest(
     val lastName: String
 )
 
+data class LoginRequest(
+    val username: String,
+    val password: String
+
+)
+

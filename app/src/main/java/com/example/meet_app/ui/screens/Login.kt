@@ -48,11 +48,7 @@ fun Login(
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Screen.Home.withArgs(text)) {
-                        popUpTo(Screen.Home.route) {
-                            inclusive = true
-                        }
-                    }
+                    navController.navigate(Screen.Home.withArgs(text))
                 }
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(
@@ -64,9 +60,10 @@ fun Login(
                 is AuthResult.UnknownError -> {
                     Toast.makeText(
                         context,
-                        "An unknown error occurred",
+                        "${result.message}",
                         Toast.LENGTH_LONG
                     ).show()
+                    println(result.message)
                 }
             }
         }
@@ -213,6 +210,7 @@ fun Login(
 
 
     }
+
 
 }
 

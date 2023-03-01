@@ -11,7 +11,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import javax.inject.Singleton
 
@@ -25,7 +25,7 @@ object AppModule {
     fun provideAuthApi(): AuthApi {
         return Retrofit.Builder()
             .baseUrl("http://192.168.118.136:8080/")
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create()
 

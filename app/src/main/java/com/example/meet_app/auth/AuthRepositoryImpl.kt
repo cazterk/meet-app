@@ -28,10 +28,10 @@ class AuthRepositoryImpl(
             if (e.code() == 401) {
                 AuthResult.Unauthorized()
             } else {
-                AuthResult.UnknownError()
+                AuthResult.UnknownError(e.message)
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError()
+            AuthResult.UnknownError(e.message)
         }
     }
 
@@ -51,10 +51,10 @@ class AuthRepositoryImpl(
             if (e.code() == 401) {
                 AuthResult.Unauthorized()
             } else {
-                AuthResult.UnknownError()
+                AuthResult.UnknownError(e.message)
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError()
+            AuthResult.UnknownError(e.message)
         }
     }
 
@@ -67,10 +67,10 @@ class AuthRepositoryImpl(
             if (e.code() == 401) {
                 AuthResult.Unauthorized()
             } else {
-                AuthResult.UnknownError()
+                AuthResult.UnknownError(e.message)
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError()
+            AuthResult.UnknownError(e.message)
         }
     }
 }
