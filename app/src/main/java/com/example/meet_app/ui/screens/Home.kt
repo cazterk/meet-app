@@ -56,12 +56,18 @@ fun Home(
                     ).show()
                 }
                 is AuthResult.Unauthorized -> {
-                    navController.navigate(Screen.Login.route)
                     Toast.makeText(
                         context,
                         "You are not authorized",
                         Toast.LENGTH_LONG
                     ).show()
+                    navController.navigate(Screen.Login.withArgs("login")) {
+                        popUpTo(Screen.Login.route) {
+                            inclusive = true
+                        }
+                    }
+
+
                 }
             }
         }

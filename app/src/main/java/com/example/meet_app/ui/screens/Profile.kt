@@ -26,10 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.R
+import com.example.meet_app.ui.auth.AuthUIEvent
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
+import com.example.meet_app.viewmodel.AuthViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -178,14 +181,28 @@ fun ShowOptionsList(
 }
 
 @Composable
-private fun OptionsItemStyle(item: OptionsData, context: Context) {
+private fun OptionsItemStyle(
+    item: OptionsData,
+    context: Context,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = true) {
-                Toast
-                    .makeText(context, item.title, Toast.LENGTH_SHORT)
-                    .show()
+//                Toast
+//                    .makeText(context, item.title, Toast.LENGTH_SHORT)
+//                    .show()
+                if (item.title == "Logout")
+//                    Toast
+//                        .makeText(context, item.title, Toast.LENGTH_SHORT)
+//                        .show()
+                    viewModel.onEvent(AuthUIEvent.SignOut)
+                else
+                    Toast
+                        .makeText(context, "something else was clicked", Toast.LENGTH_SHORT)
+                        .show()
+
             }
             .padding(all = 16.dp),
         verticalAlignment = Alignment.CenterVertically
