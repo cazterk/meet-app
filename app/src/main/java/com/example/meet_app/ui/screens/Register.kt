@@ -3,6 +3,7 @@ package com.example.meet_app.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -48,7 +49,11 @@ fun Register(
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Screen.Home.route)
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
                 }
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(
@@ -240,11 +245,13 @@ fun Register(
 
         Text(
             modifier = Modifier
-                .fillMaxSize()
                 .constrainAs(LoginLink) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     top.linkTo(btnLogin.bottom, margin = 20.dp)
+                }
+                .clickable {
+                           navController.navigate(Screen.Login.withArgs("login"))
                 },
             text = "Already have an account?",
             textAlign = TextAlign.Center,

@@ -2,6 +2,7 @@ package com.example.meet_app.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -184,11 +185,13 @@ fun Login(
 
         Text(
             modifier = Modifier
-                .fillMaxSize()
                 .constrainAs(registerLink) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     top.linkTo(btnLogin.bottom, margin = 20.dp)
+                }
+                .clickable {
+                    navController.navigate(Screen.Register.withArgs("register"))
                 },
             text = "Click here for new Users",
             textAlign = TextAlign.Center,
