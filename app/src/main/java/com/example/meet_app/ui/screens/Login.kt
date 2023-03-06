@@ -48,14 +48,14 @@ fun Login(
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Screen.Home.route)
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
                 }
                 is AuthResult.Unauthorized -> {
-                    Toast.makeText(
-                        context,
-                        "You are not authorized",
-                        Toast.LENGTH_LONG
-                    ).show()
+
                 }
                 is AuthResult.UnknownError -> {
                     Toast.makeText(

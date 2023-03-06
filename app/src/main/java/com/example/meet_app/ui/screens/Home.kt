@@ -42,7 +42,8 @@ fun Home(
     }
     var fonts = getFonts()
     var name = "Cephas"
-    var username = "@cazterk"
+    val shouldNavigate = remember { mutableStateOf(false) }
+
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
@@ -54,24 +55,21 @@ fun Home(
                         "Authorized",
                         Toast.LENGTH_LONG
                     ).show()
+
+
                 }
                 is AuthResult.Unauthorized -> {
-                    Toast.makeText(
-                        context,
-                        "You are not authorized",
-                        Toast.LENGTH_LONG
-                    ).show()
                     navController.navigate(Screen.Login.withArgs("login")) {
-                        popUpTo(Screen.Login.route) {
+                        popUpTo(navController.graph.id) {
                             inclusive = true
                         }
                     }
-
 
                 }
             }
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

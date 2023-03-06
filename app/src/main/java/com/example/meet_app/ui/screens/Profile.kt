@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.R
+import com.example.meet_app.auth.AuthResult
+import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.auth.AuthUIEvent
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
@@ -39,10 +41,33 @@ import kotlinx.coroutines.withContext
 private val optionsList: ArrayList<OptionsData> = ArrayList()
 
 @Composable
-fun Profile(navController: NavController, name: String?) {
+fun Profile(
+    navController: NavController,
+    name: String?, viewModel: AuthViewModel = hiltViewModel()
+) {
     val fonts = getFonts()
-    val text by remember {
-        mutableStateOf("")
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel, context) {
+        viewModel.authResults.collect { result ->
+            when (result) {
+                is AuthResult.Unauthorized -> {
+                    navController.navigate(Screen.Login.withArgs("login")) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
+                is AuthResult.UnknownError -> {
+                    Toast.makeText(
+                        context,
+                        "${result.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    println(result.message)
+                }
+            }
+        }
     }
     Column(//
         modifier = Modifier
@@ -190,19 +215,12 @@ private fun OptionsItemStyle(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = true) {
-//                Toast
-//                    .makeText(context, item.title, Toast.LENGTH_SHORT)
-//                    .show()
                 if (item.title == "Logout")
-//                    Toast
-//                        .makeText(context, item.title, Toast.LENGTH_SHORT)
-//                        .show()
                     viewModel.onEvent(AuthUIEvent.SignOut)
                 else
                     Toast
                         .makeText(context, "something else was clicked", Toast.LENGTH_SHORT)
                         .show()
-
             }
             .padding(all = 16.dp),
         verticalAlignment = Alignment.CenterVertically
