@@ -31,6 +31,8 @@ import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 import com.example.meet_app.viewmodel.AuthViewModel
+import com.google.android.gms.nearby.Nearby
+import com.google.android.gms.nearby.connection.*
 
 
 @Composable
@@ -272,6 +274,69 @@ fun connectionsListItems(connectionsData: connectionsData) {
             }
         }
     }
+
+}
+
+@Composable
+fun DiscoverSection() {
+    // TODO: Implement UI
+    val nearbyUsers = remember { mutableStateListOf<String>() }
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        val options = DiscoveryOptions.Builder()
+            .setStrategy(Strategy.P2P_STAR)
+            .build()
+
+        val nearby = Nearby.getConnectionsClient(context)
+
+        val advertisingOptions = AdvertisingOptions.Builder()
+            .setStrategy(Strategy.P2P_STAR)
+            .build()
+
+        nearby.startAdvertising(
+            "user",
+            "user",
+            object : ConnectionLifecycleCallback() {
+                override fun onConnectionInitiated(
+                    endpointId: String,
+                    ConnectionInfo: ConnectionInfo
+                ) {
+                    nearbyUsers.add(endpointId)
+                }
+
+                override fun onDisconnected(endpointId: String) {
+                    nearbyUsers.remove(endpointId)
+                }
+
+                override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
+                    TODO("Not yet implemented")
+                }
+
+            },
+            advertisingOptions
+        )
+
+        nearby.startDiscovery(
+            "users",
+            object : EndpointDiscoveryCallback() {
+                override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
+                    nearbyUsers.add(endpointId)
+                }
+
+                override fun onEndpointLost(endpointId: String) {
+                    nearbyUsers.remove(endpointId)
+                }
+
+            },
+            options
+        )
+
+
+    }
+}
+
+@Composable
+fun NearByUser(user:String){
 
 }
 
