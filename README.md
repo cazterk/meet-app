@@ -1,14 +1,13 @@
 # MeetApp
 
-MeetApp is a social app for connecting with people based on common interests. This app is built using Android Studio and Kotlin. It is open source, so feel free to contribute to the project and make it even better!
+MeetApp is an upcoming social app built using Kotlin and Android Studio, designed to help people meet others who share their interests and are within close proximity. This app is open source and we welcome contributions from the community to help make it even better!
 
 ## Features
 
 - User authentication and authorization
 - User profiles with customizable display pictures
-- Searching for people with similar interests
-- Chatting with other users
-- Creating and joining groups based on interests
+- Searching for people with similar interests within a specific radius
+- Chatting with other users to get to know them better
 - Scheduling meetups with groups or individuals
 
 ## Installation
