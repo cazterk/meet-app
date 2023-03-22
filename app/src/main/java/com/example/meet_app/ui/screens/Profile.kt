@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +36,7 @@ import com.example.meet_app.ui.auth.AuthUIEvent
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 import com.example.meet_app.viewmodel.AuthViewModel
+import com.example.meet_app.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -43,10 +45,13 @@ private val optionsList: ArrayList<OptionsData> = ArrayList()
 @Composable
 fun Profile(
     navController: NavController,
-    name: String?, viewModel: AuthViewModel = hiltViewModel()
+    name: String?,
+    viewModel: AuthViewModel = hiltViewModel(),
+    userViewModel: UserViewModel = hiltViewModel()
 ) {
     val fonts = getFonts()
     val context = LocalContext.current
+    val currentUser by userViewModel.currentUser.observeAsState()
 
     LaunchedEffect(viewModel, context) {
         viewModel.authResults.collect { result ->
@@ -66,8 +71,12 @@ fun Profile(
                     ).show()
                     println(result.message)
                 }
+                is AuthResult.Authorized -> {
+                    userViewModel.loadCurrentUser()
+                }
             }
         }
+
     }
     Column(//
         modifier = Modifier
@@ -130,7 +139,7 @@ fun Profile(
                             .padding(start = 16.dp)
                     ) {
                         Text(
-                            text = "Cephas Zulu",
+                            text = "${currentUser?.firstName} ${currentUser?.lastName}",
                             style = TextStyle(
                                 fontSize = 22.sp,
                                 fontFamily = fonts,
@@ -142,7 +151,7 @@ fun Profile(
 //                        Spacer(modifier = Modifier.height(1.dp))
 
                         Text(
-                            text = "@cazterk",
+                            text = "@${currentUser?.username}",
                             style = TextStyle(
                                 fontSize = 14.sp,
                                 color = Color.Gray,
