@@ -7,9 +7,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -174,6 +174,15 @@ fun Home(
                     {
                         Text(text = "Message")
                     }
+                    Scaffold(
+                        floatingActionButton = {
+                            FloatingActionButton(onClick = { /*TODO*/ }) {
+                                Icon(imageVector = Icons.Outlined.Search, contentDescription = "Search")
+                            }
+                        }
+                    ) {
+
+                    }
 
                 }
 
@@ -182,6 +191,7 @@ fun Home(
         }
 
     }
+
 
 }
 
