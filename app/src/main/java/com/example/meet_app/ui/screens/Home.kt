@@ -11,6 +11,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +32,7 @@ import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 import com.example.meet_app.viewmodel.AuthViewModel
+import com.example.meet_app.viewmodel.UserViewModel
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 
@@ -38,15 +40,15 @@ import com.google.android.gms.nearby.connection.*
 @Composable
 fun Home(
     navController: NavController,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+    userViewModel: UserViewModel = hiltViewModel()
 ) {
     var text by remember {
         mutableStateOf("")
     }
     var fonts = getFonts()
-    var name = "Cephas"
-    val shouldNavigate = remember { mutableStateOf(false) }
-
+    val currentUser by userViewModel.currentUser.observeAsState()
+    var name = "${currentUser?.firstName} ${currentUser?.lastName}"
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
@@ -59,7 +61,7 @@ fun Home(
                         Toast.LENGTH_LONG
                     ).show()
 
-
+                    userViewModel.loadCurrentUser()
                 }
                 is AuthResult.Unauthorized -> {
                     navController.navigate(Screen.Login.withArgs("login")) {
@@ -71,6 +73,7 @@ fun Home(
                 }
             }
         }
+
     }
 
     Column(
@@ -336,7 +339,7 @@ fun DiscoverSection() {
 }
 
 @Composable
-fun NearByUser(user:String){
+fun NearByUser(user: String) {
 
 }
 
