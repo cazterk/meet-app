@@ -1,6 +1,8 @@
 package com.example.meet_app.viewmodel
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +13,7 @@ import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,8 +23,10 @@ class UserViewModel @Inject constructor(
 ) : ViewModel() {
     private val _currentUser = MutableLiveData<UserResponse>()
     val currentUser: LiveData<UserResponse> = _currentUser
-//        get() = _currentUser
 
+    //        get() = _currentUser
+    private val _discoveredUsers = MutableLiveData<List<Endpoint>>()
+    val discoveredUsers : LiveData<List<Endpoint>> = _discoveredUsers
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -42,36 +47,19 @@ class UserViewModel @Inject constructor(
             .build()
         nearByShareClient.startDiscovery(
             "User Data",
-            object : EndpointDiscoveryCallback(){
+            object : EndpointDiscoveryCallback() {
                 override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-                  val metaData = info.endpointName.split("|")
-                    if (metaData.size == 2 && metaData [0] == "My Data"){
-                        nearByShareClient.requestConnection(
-                            "User Data",
-                            endpointId,
-                            object : ConnectionLifecycleCallback(){
-                                override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
-//                                    nearByShareClient.acceptConnection(endpointId,)
-                                }
+                    val user = Endpoint(endpointId, info.endpointName)
+                    val updatedUsers = discoveredUsers.value.orEmpty() + user
+                    _discoveredUsers.value = updatedUsers.toList()
 
-                                override fun onConnectionResult(
-                                    p0: String,
-                                    p1: ConnectionResolution
-                                ) {
-                                    TODO("Not yet implemented")
-                                }
-
-                                override fun onDisconnected(p0: String) {
-                                    TODO("Not yet implemented")
-                                }
-
-                            }
-                        )
-                    }
                 }
 
+                @RequiresApi(Build.VERSION_CODES.N)
                 override fun onEndpointLost(endpointId: String) {
-                    TODO("Not yet implemented")
+                    val currentUsers = discoveredUsers.value.orEmpty()
+                    val updatedUsers = currentUsers.filter { it.id == endpointId }
+                    _discoveredUsers.value = updatedUsers.toList()
                 }
 
             },
@@ -79,20 +67,35 @@ class UserViewModel @Inject constructor(
         )
     }
 
-    fun sendUSerData(endpointId: String){
+    fun stopDiscovery() {
+        nearByShareClient.stopDiscovery()
+    }
+
+    fun shareUser(endpointId: String) {
         val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
         nearByShareClient.sendPayload(endpointId, payload)
 
     }
-//    fun UserResponse.toPayload(): Payload {
-//        val data = JSONObject().apply {
-//            put("id", id)
-//            put("username", username)
-//            put("firstName", firstName)
-//            put("lastName", lastName)
-//        }.toString()
-//        return Payload.fromBytes(data.toByteArray())
-//    }
+
+    private fun serializeUser(user: UserResponse): ByteArray {
+        val data = JSONObject()
+        data.put("id", user.id)
+        data.put("username", user.username)
+        data.put("firstName", user.firstName)
+        data.put("lastName", user.lastName)
+        return data.toString().toByteArray(Charsets.UTF_8)
+    }
+
+    private fun deserializeUser(bytes: ByteArray): UserResponse {
+        val jsonString = String(bytes, Charsets.UTF_8)
+        val jsonObject = JSONObject(jsonString)
+        return UserResponse(
+            id = jsonObject.getString("id"),
+            username = jsonObject.getString("username"),
+            firstName = jsonObject.getString("firstName"),
+            lastName = jsonObject.getString("lastName"),
+        )
+    }
 //companion object
 //    fun UserResponse.fromPayload(payload: Payload): UserResponse {
 //        val data = payload.asBytes()?.toString(Charsets.UTF_8) ?: ""
@@ -105,51 +108,7 @@ class UserViewModel @Inject constructor(
 //        )
 //    }
 //
-//    fun shareProfile(context: Context) {
-//        val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
-//        Nearby.getConnectionsClient(context)
-//            .startAdvertising(
-//                "User profile",
-//                BuildConfig.APPLICATION_ID,
-//                payload,
-//                object : ConnectionLifecycleCallback() {
-//                    override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
-//                        Nearby.getConnectionsClient(context)
-//                            .acceptConnection(endpointId, object : PayloadCallback() {
-//                                override fun onPayloadReceived(
-//                                    endpointId: String,
-//                                    payload: Payload
-//                                ) {
-//
-//                                    val userData = payload.asBytes()
-//                                    if (userData != null) {
-//                                        val userDataString = userData.toString(Charsets.UTF_8)
-//                                        val user =  Gson().fromJson(userDataString, User::class.java)
-//                                    }
-//                                }
-//
-//                                override fun onPayloadTransferUpdate(
-//                                    p0: String,
-//                                    p1: PayloadTransferUpdate
-//                                ) {
-//                                    TODO("Not yet implemented")
-//                                }
-//
-//                            })
-//                    }
-//
-//                    override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
-//                        TODO("Not yet implemented")
-//                    }
-//
-//                    override fun onDisconnected(p0: String) {
-//                        TODO("Not yet implemented")
-//                    }
-//
-//                }
-//            )
-//    }
-//
+
 //    private fun createPayload(user: LiveData<UserResponse>): Payload {
 //        val gson = Gson()
 //        val data = gson.toJson(user).toByteArray()
@@ -170,3 +129,8 @@ class UserViewModel @Inject constructor(
 //
 //    }
 }
+
+data class Endpoint(
+    val id: String,
+    val name: String
+)
