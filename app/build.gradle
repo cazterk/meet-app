@@ -94,6 +94,7 @@ dependencies {
     // gms
     implementation 'com.google.android.gms:play-services-nearby:18.4.0'
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
+    implementation "com.google.accompanist:accompanist-permissions:0.25.0"
     // stream sdk
     // client + offline + UI components
     implementation "io.getstream:stream-chat-android-ui-components:$stream_version"

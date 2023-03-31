@@ -5,4 +5,7 @@ class UserRepository(private val userApi: UserApi) {
         return userApi.getSecretInfo()
     }
 
+    suspend fun getUsers(): List<UserResponse> {
+        return userApi.getUsers()
+    }
 }

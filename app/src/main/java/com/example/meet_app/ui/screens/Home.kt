@@ -27,14 +27,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.R
+import com.example.meet_app.api.user.UserResponse
 import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 import com.example.meet_app.viewmodel.AuthViewModel
 import com.example.meet_app.viewmodel.UserViewModel
-import com.google.android.gms.nearby.Nearby
-import com.google.android.gms.nearby.connection.*
 
 
 @Composable
@@ -162,7 +161,7 @@ fun Home(
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                connectionsOptions()
+                ConnectionsOptions()
                 Spacer(modifier = Modifier.height(16.dp))
                 Column() {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -176,8 +175,11 @@ fun Home(
                     }
                     Scaffold(
                         floatingActionButton = {
-                            FloatingActionButton(onClick = { /*TODO*/ }) {
-                                Icon(imageVector = Icons.Outlined.Search, contentDescription = "Search")
+                            FloatingActionButton(onClick = { userViewModel.startDiscovery() }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Search,
+                                    contentDescription = "Search"
+                                )
                             }
                         }
                     ) {
@@ -196,40 +198,46 @@ fun Home(
 }
 
 @Composable
-private fun connectionsOptions() {
-    val listOfConnectionsData = listOf(
-        connectionsData("John Doe", painterResource(R.drawable.person1), "01/01/2022"),
-        connectionsData(
-            "Martin James",
-            painterResource(R.drawable.person2),
-            "01/01/2022"
-        ),
-        connectionsData(
-            " Smith Daniel",
-            painterResource(R.drawable.person3),
-            "01/01/2022"
-        ),
-        connectionsData(
-            " Annie Daniel",
-            painterResource(R.drawable.person4),
-            "01/01/2021"
-        )
-    )
+fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
+    val users by userViewModel.users.observeAsState(emptyList())
+    val discoveredUsers by userViewModel.discoveredUsers.observeAsState(emptyList())
+
+//    val listOfConnectionsData = listOf(
+////        UserResponse("", ""),
+//        connectionsData(
+//            "Martin James",
+//            painterResource(R.drawable.person2),
+//            "01/01/2022"
+//        ),
+//        connectionsData(
+//            " Smith Daniel",
+//            painterResource(R.drawable.person3),
+//            "01/01/2022"
+//        ),
+//        connectionsData(
+//            " Annie Daniel",
+//            painterResource(R.drawable.person4),
+//            "01/01/2021"
+//        )
+//    )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
         LazyColumn {
-            items(listOfConnectionsData.size) { index ->
-                connectionsListItems(listOfConnectionsData[index])
+            items(discoveredUsers?.size) { user ->
+                ConnectionsListItems(user as UserResponse) { endpointId ->
+                    userViewModel.shareUser(endpointId)
+
+                }
             }
         }
     }
 }
 
 @Composable
-fun connectionsListItems(connectionsData: connectionsData) {
-    val date = connectionsData.date
+fun ConnectionsListItems(user: UserResponse, onShareClick: (String) -> Unit) {
+    val date = "01/01/2021"
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -241,14 +249,16 @@ fun connectionsListItems(connectionsData: connectionsData) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(shape = CircleShape),
-                painter = connectionsData.image,
-                contentDescription = ""
+            user.profileImage?.let {
+                Image(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(shape = CircleShape),
+                    painter = it,
+                    contentDescription = ""
 
-            )
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -260,7 +270,7 @@ fun connectionsListItems(connectionsData: connectionsData) {
                         .padding(start = 16.dp)
                 ) {
                     Text(
-                        text = connectionsData.fullName,
+                        text = " $user.firstName $user.lastName",
                         style = TextStyle(
                             fontSize = 16.sp,
                             fontFamily = fonts,
@@ -290,67 +300,5 @@ fun connectionsListItems(connectionsData: connectionsData) {
 
 }
 
-@Composable
-fun DiscoverSection() {
-    // TODO: Implement UI
-    val nearbyUsers = remember { mutableStateListOf<String>() }
-    val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        val options = DiscoveryOptions.Builder()
-            .setStrategy(Strategy.P2P_STAR)
-            .build()
-
-        val nearby = Nearby.getConnectionsClient(context)
-
-        val advertisingOptions = AdvertisingOptions.Builder()
-            .setStrategy(Strategy.P2P_STAR)
-            .build()
-
-        nearby.startAdvertising(
-            "user",
-            "user",
-            object : ConnectionLifecycleCallback() {
-                override fun onConnectionInitiated(
-                    endpointId: String,
-                    ConnectionInfo: ConnectionInfo
-                ) {
-                    nearbyUsers.add(endpointId)
-                }
-
-                override fun onDisconnected(endpointId: String) {
-                    nearbyUsers.remove(endpointId)
-                }
-
-                override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
-                    TODO("Not yet implemented")
-                }
-
-            },
-            advertisingOptions
-        )
-
-        nearby.startDiscovery(
-            "users",
-            object : EndpointDiscoveryCallback() {
-                override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-                    nearbyUsers.add(endpointId)
-                }
-
-                override fun onEndpointLost(endpointId: String) {
-                    nearbyUsers.remove(endpointId)
-                }
-
-            },
-            options
-        )
-
-
-    }
-}
-
-@Composable
-fun NearByUser(user: String) {
-
-}
 
 data class connectionsData(val fullName: String, val image: Painter, val date: String)

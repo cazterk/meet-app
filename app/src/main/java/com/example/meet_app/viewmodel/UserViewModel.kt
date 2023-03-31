@@ -24,9 +24,13 @@ class UserViewModel @Inject constructor(
     private val _currentUser = MutableLiveData<UserResponse>()
     val currentUser: LiveData<UserResponse> = _currentUser
 
+    private val _users = MutableLiveData<List<UserResponse>>()
+    val users: LiveData<List<UserResponse>>
+        get() = _users
+
     //        get() = _currentUser
     private val _discoveredUsers = MutableLiveData<List<Endpoint>>()
-    val discoveredUsers : LiveData<List<Endpoint>> = _discoveredUsers
+    val discoveredUsers: LiveData<List<Endpoint>> = _discoveredUsers
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -65,6 +69,12 @@ class UserViewModel @Inject constructor(
             },
             options
         )
+            .addOnSuccessListener {
+                TODO(" Handle Discovery has started successfully")
+            }
+            .addOnFailureListener {
+                TODO("Handle Discovery has failed ")
+            }
     }
 
     fun stopDiscovery() {
@@ -75,6 +85,22 @@ class UserViewModel @Inject constructor(
         val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
         nearByShareClient.sendPayload(endpointId, payload)
 
+    }
+
+
+    fun getEndpointUser(endpoint: Endpoint): UserResponse? {
+        val users = users.value ?: emptyList()
+
+        for (user in users) {
+            if (user.deviceName == endpoint.name || user.deviceId == endpoint.id) {
+                return user
+            }
+        }
+        return null
+    }
+
+    fun getDiscoverUsers() {
+//        getEndpointUser().
     }
 
     private fun serializeUser(user: UserResponse): ByteArray {

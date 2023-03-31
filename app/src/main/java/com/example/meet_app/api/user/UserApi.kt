@@ -7,5 +7,8 @@ interface UserApi {
     @GET("secret")
     suspend fun getSecretInfo(): UserResponse
 
+    @GET("users")
+    suspend fun getUsers(): List<UserResponse>
+
 
 }
