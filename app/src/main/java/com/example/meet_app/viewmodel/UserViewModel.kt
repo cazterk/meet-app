@@ -1,7 +1,9 @@
 package com.example.meet_app.viewmodel
 
 import android.app.Application
+import android.content.ContentValues.TAG
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -49,10 +51,12 @@ class UserViewModel @Inject constructor(
         val options = DiscoveryOptions.Builder()
             .setStrategy(Strategy.P2P_CLUSTER)
             .build()
+
         nearByShareClient.startDiscovery(
             "User Data",
             object : EndpointDiscoveryCallback() {
                 override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
+
                     val user = Endpoint(endpointId, info.endpointName)
                     val updatedUsers = discoveredUsers.value.orEmpty() + user
                     _discoveredUsers.value = updatedUsers.toList()
@@ -70,10 +74,11 @@ class UserViewModel @Inject constructor(
             options
         )
             .addOnSuccessListener {
-                TODO(" Handle Discovery has started successfully")
+                Log.d(TAG, "Discovered")
             }
-            .addOnFailureListener {
-                TODO("Handle Discovery has failed ")
+            .addOnFailureListener { exception ->
+                // Handle the exception and show an error message
+                Log.e(TAG, "Discovery failed: ${exception}")
             }
     }
 

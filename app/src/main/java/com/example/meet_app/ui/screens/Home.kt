@@ -225,7 +225,7 @@ fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
 
         ) {
         LazyColumn {
-            items(discoveredUsers?.size) { user ->
+            items(discoveredUsers.size) { user ->
                 ConnectionsListItems(user as UserResponse) { endpointId ->
                     userViewModel.shareUser(endpointId)
 
