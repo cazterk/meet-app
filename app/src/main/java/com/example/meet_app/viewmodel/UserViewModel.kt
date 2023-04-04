@@ -74,16 +74,17 @@ class UserViewModel @Inject constructor(
             options
         )
             .addOnSuccessListener {
-                Log.d(TAG, "Discovered")
+                Log.d(TAG, "Discovery started")
             }
             .addOnFailureListener { exception ->
                 // Handle the exception and show an error message
-                Log.e(TAG, "Discovery failed: ${exception}")
+                Log.e(TAG, "Discovery failed: ${exception.message}")
             }
     }
 
     fun stopDiscovery() {
         nearByShareClient.stopDiscovery()
+        Log.d(TAG, "Discovery stopped")
     }
 
     fun shareUser(endpointId: String) {

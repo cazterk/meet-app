@@ -15,6 +15,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
@@ -48,6 +49,7 @@ fun Home(
     var fonts = getFonts()
     val currentUser by userViewModel.currentUser.observeAsState()
     var name = "${currentUser?.firstName} ${currentUser?.lastName}"
+    var isVisibilityEnabled by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
@@ -151,8 +153,35 @@ fun Home(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Text(
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Visibility",
+                        fontSize = 13.sp,
+                        fontFamily = fonts,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Switch(
+                        modifier = Modifier.scale(scale = 1.3f),
+
+                        checked = isVisibilityEnabled,
+                        onCheckedChange = { isChecked ->
+                            isVisibilityEnabled = isChecked
+                            if (isChecked) {
+                                userViewModel.startDiscovery()
+                            } else {
+                                userViewModel.stopDiscovery()
+                            }
+                        },
+
+                        )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
                     text = "Near By People",
                     style = TextStyle(
                         fontSize = 16.sp,
