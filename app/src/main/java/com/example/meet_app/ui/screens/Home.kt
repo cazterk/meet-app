@@ -42,6 +42,7 @@ fun Home(
     navController: NavController,
     viewModel: AuthViewModel = hiltViewModel(),
     userViewModel: UserViewModel = hiltViewModel()
+
 ) {
     var text by remember {
         mutableStateOf("")
@@ -166,13 +167,14 @@ fun Home(
                         fontWeight = FontWeight.SemiBold
                     )
                     Switch(
-                        modifier = Modifier.scale(scale = 1.3f),
+                        modifier = Modifier.scale(scale = 1.2f),
 
                         checked = isVisibilityEnabled,
                         onCheckedChange = { isChecked ->
                             isVisibilityEnabled = isChecked
                             if (isChecked) {
                                 userViewModel.startDiscovery()
+                                userViewModel.startAdvertising()
                             } else {
                                 userViewModel.stopDiscovery()
                             }

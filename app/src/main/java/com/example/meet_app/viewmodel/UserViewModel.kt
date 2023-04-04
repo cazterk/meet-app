@@ -105,6 +105,55 @@ class UserViewModel @Inject constructor(
         return null
     }
 
+    private val payloadCallback = object : PayloadCallback() {
+        override fun onPayloadReceived(endpointId: String, payload: Payload) {
+            val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
+            Log.d(TAG, "Received payload from $endpointId: $payload")
+        }
+
+        override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) {
+            if (update.status == PayloadTransferUpdate.Status.SUCCESS) {
+                Log.d(TAG, "Payload sent to $endpointId successfully")
+            }
+        }
+    }
+
+    fun startAdvertising() {
+        val advertisingOptions = AdvertisingOptions.Builder()
+            .setStrategy(Strategy.P2P_CLUSTER)
+            .build()
+
+        nearByShareClient.startAdvertising(
+            "User Data", // Service name
+            "com.example.userdata", // Service ID
+            object : ConnectionLifecycleCallback() {
+                override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
+                    // Automatically accept the connection on both ends.
+                    nearByShareClient.acceptConnection(endpointId, payloadCallback)
+                }
+
+                override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
+                    if (result.status.isSuccess) {
+                        Log.d(TAG, "Connection successful")
+                    } else {
+                        Log.e(TAG, "Connection failed")
+                    }
+                }
+
+                override fun onDisconnected(endpointId: String) {
+                    Log.d(TAG, "Disconnected from endpoint $endpointId")
+                }
+            },
+            advertisingOptions
+        ).addOnSuccessListener {
+            Log.d(TAG, "Advertising started")
+        }.addOnFailureListener { exception ->
+            // Handle the exception and show an error message
+            Log.e(TAG, "Advertising failed: ${exception.message}")
+        }
+    }
+
+
     fun getDiscoverUsers() {
 //        getEndpointUser().
     }
