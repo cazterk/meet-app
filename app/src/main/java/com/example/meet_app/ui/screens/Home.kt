@@ -50,7 +50,7 @@ fun Home(
     var fonts = getFonts()
     val currentUser by userViewModel.currentUser.observeAsState()
     var name = "${currentUser?.firstName} ${currentUser?.lastName}"
-    var isVisibilityEnabled by remember { mutableStateOf(false) }
+    var isVisibilityEnabled by remember { mutableStateOf( false ) }
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
@@ -173,10 +173,9 @@ fun Home(
                         onCheckedChange = { isChecked ->
                             isVisibilityEnabled = isChecked
                             if (isChecked) {
-                                userViewModel.startDiscovery()
                                 userViewModel.startAdvertising()
                             } else {
-                                userViewModel.stopDiscovery()
+                                userViewModel.stopAdvertising()
                             }
                         },
 

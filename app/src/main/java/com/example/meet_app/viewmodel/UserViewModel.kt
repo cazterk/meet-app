@@ -16,6 +16,8 @@ import com.google.android.gms.nearby.connection.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.io.ByteArrayInputStream
+import java.io.ObjectInputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,6 +45,15 @@ class UserViewModel @Inject constructor(
                 print("get user error" + e.message)
             }
         }
+    }
+
+    private fun parseUserProfile(userBytes: ByteArray): UserResponse {
+        val inputStream = ByteArrayInputStream(userBytes)
+        val objectInputStream = ObjectInputStream(inputStream)
+        val user = objectInputStream.readObject() as UserResponse
+        objectInputStream.close()
+        inputStream.close()
+        return user
     }
 
     private val nearByShareClient = Nearby.getConnectionsClient(application)
@@ -87,6 +98,10 @@ class UserViewModel @Inject constructor(
         Log.d(TAG, "Discovery stopped")
     }
 
+    fun stopAdvertising(){
+        nearByShareClient.stopAdvertising()
+        Log.d(TAG, "Advertising stopped")
+    }
     fun shareUser(endpointId: String) {
         val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
         nearByShareClient.sendPayload(endpointId, payload)
@@ -127,9 +142,35 @@ class UserViewModel @Inject constructor(
             "User Data", // Service name
             "com.example.userdata", // Service ID
             object : ConnectionLifecycleCallback() {
-                override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
+                override fun onConnectionInitiated(
+                    endpointId: String,
+                    connectionInfo: ConnectionInfo
+                ) {
                     // Automatically accept the connection on both ends.
-                    nearByShareClient.acceptConnection(endpointId, payloadCallback)
+
+                    nearByShareClient.acceptConnection(endpointId, object : PayloadCallback() {
+                        override fun onPayloadReceived(endpointId: String, payload: Payload) {
+                            if (payload.type == Payload.Type.BYTES) {
+                                val userProfileBytes = payload.asBytes()
+                                val userProfile = userProfileBytes?.let { Payload.fromBytes(it) }
+
+                                val responsePayload = userProfile
+                                if (responsePayload != null) {
+                                    nearByShareClient.sendPayload(endpointId, responsePayload)
+                                }
+
+                            }
+                        }
+
+                        override fun onPayloadTransferUpdate(
+                            p0: String,
+                            p1: PayloadTransferUpdate
+                        ) {
+                            TODO("Not yet implemented")
+                        }
+
+                    })
+
                 }
 
                 override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
