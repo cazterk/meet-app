@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -191,9 +192,10 @@ fun Home(
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                ConnectionsOptions()
+//                ConnectionsOptions()
+                Connections()
                 Spacer(modifier = Modifier.height(16.dp))
-                Column() {
+                Column {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         modifier = Modifier.width(150.dp),
@@ -226,6 +228,24 @@ fun Home(
 
 
 }
+@Composable
+    fun Connections(userView: UserViewModel = hiltViewModel() ){
+        val connections by userView.discoveredUsers.observeAsState(emptyList())
+
+
+        Column {
+            LazyColumn{
+                items(connections){ connection ->
+                    Text(connection.name)
+                }
+            }
+        }
+    }
+
+
+
+
+
 
 @Composable
 fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {

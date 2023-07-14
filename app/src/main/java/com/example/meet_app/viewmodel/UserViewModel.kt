@@ -93,46 +93,6 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun stopDiscovery() {
-        nearByShareClient.stopDiscovery()
-        Log.d(TAG, "Discovery stopped")
-    }
-
-    fun stopAdvertising(){
-        nearByShareClient.stopAdvertising()
-        Log.d(TAG, "Advertising stopped")
-    }
-    fun shareUser(endpointId: String) {
-        val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
-        nearByShareClient.sendPayload(endpointId, payload)
-
-    }
-
-
-    fun getEndpointUser(endpoint: Endpoint): UserResponse? {
-        val users = users.value ?: emptyList()
-
-        for (user in users) {
-            if (user.deviceName == endpoint.name || user.deviceId == endpoint.id) {
-                return user
-            }
-        }
-        return null
-    }
-
-    private val payloadCallback = object : PayloadCallback() {
-        override fun onPayloadReceived(endpointId: String, payload: Payload) {
-            val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
-            Log.d(TAG, "Received payload from $endpointId: $payload")
-        }
-
-        override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) {
-            if (update.status == PayloadTransferUpdate.Status.SUCCESS) {
-                Log.d(TAG, "Payload sent to $endpointId successfully")
-            }
-        }
-    }
-
     fun startAdvertising() {
         val advertisingOptions = AdvertisingOptions.Builder()
             .setStrategy(Strategy.P2P_CLUSTER)
@@ -193,6 +153,48 @@ class UserViewModel @Inject constructor(
             Log.e(TAG, "Advertising failed: ${exception.message}")
         }
     }
+
+    fun stopDiscovery() {
+        nearByShareClient.stopDiscovery()
+        Log.d(TAG, "Discovery stopped")
+    }
+
+    fun stopAdvertising(){
+        nearByShareClient.stopAdvertising()
+        Log.d(TAG, "Advertising stopped")
+    }
+    fun shareUser(endpointId: String) {
+        val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
+        nearByShareClient.sendPayload(endpointId, payload)
+
+    }
+
+
+    fun getEndpointUser(endpoint: Endpoint): UserResponse? {
+        val users = users.value ?: emptyList()
+
+        for (user in users) {
+            if (user.deviceName == endpoint.name || user.deviceId == endpoint.id) {
+                return user
+            }
+        }
+        return null
+    }
+
+    private val payloadCallback = object : PayloadCallback() {
+        override fun onPayloadReceived(endpointId: String, payload: Payload) {
+            val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
+            Log.d(TAG, "Received payload from $endpointId: $payload")
+        }
+
+        override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) {
+            if (update.status == PayloadTransferUpdate.Status.SUCCESS) {
+                Log.d(TAG, "Payload sent to $endpointId successfully")
+            }
+        }
+    }
+
+
 
 
     fun getDiscoverUsers() {
