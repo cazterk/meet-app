@@ -2,9 +2,8 @@ package com.example.meet_app.viewmodel
 
 import android.app.Application
 import android.content.ContentValues.TAG
-import android.os.Build
+import android.content.Context
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,7 +22,9 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val context: Context,
     application: Application
+
 ) : ViewModel() {
     private val _currentUser = MutableLiveData<UserResponse>()
     val currentUser: LiveData<UserResponse> = _currentUser
@@ -58,102 +59,141 @@ class UserViewModel @Inject constructor(
 
     private val nearByShareClient = Nearby.getConnectionsClient(application)
 
-    fun startDiscovery() {
+//    fun startDiscovery() {
+//        val options = DiscoveryOptions.Builder()
+//            .setStrategy(Strategy.P2P_CLUSTER)
+//            .build()
+//
+//        nearByShareClient.startDiscovery(
+//            "User Data",
+//            object : EndpointDiscoveryCallback() {
+//                override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
+//
+//                    nearByShareClient.requestConnection(android.os.Build.MODEL, endpointId,   ConnectionLifecycleCallback()
+//
+//                    )
+//
+//                }
+//
+//                @RequiresApi(Build.VERSION_CODES.N)
+//                override fun onEndpointLost(endpointId: String) {
+//
+//                }
+//
+//            },
+//            options
+//        )
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Discovery started")
+//            }
+//            .addOnFailureListener { exception ->
+//                // Handle the exception and show an error message
+//                Log.e(TAG, "Discovery failed: ${exception.message}")
+//            }
+//    }
+
+//    fun startAdvertising() {
+//        val advertisingOptions = AdvertisingOptions.Builder()
+//            .setStrategy(Strategy.P2P_CLUSTER)
+//            .build()
+//
+//        nearByShareClient.startAdvertising(
+//            "User Data", // Service name
+//            "com.example.userdata", // Service ID
+//            object : ConnectionLifecycleCallback() {
+//                override fun onConnectionInitiated(
+//                    endpointId: String,
+//                    connectionInfo: ConnectionInfo
+//                ) {
+//                    // Automatically accept the connection on both ends.
+//
+//                    nearByShareClient.acceptConnection(endpointId, object : PayloadCallback() {
+//                        override fun onPayloadReceived(endpointId: String, payload: Payload) {
+//                            if (payload.type == Payload.Type.BYTES) {
+//                                val userProfileBytes = payload.asBytes()
+//                                val userProfile = userProfileBytes?.let { Payload.fromBytes(it) }
+//
+//                                if (userProfile != null) {
+//                                    nearByShareClient.sendPayload(endpointId, userProfile)
+//                                }
+//
+//                            }
+//                        }
+//
+//                        override fun onPayloadTransferUpdate(
+//                            p0: String,
+//                            p1: PayloadTransferUpdate
+//                        ) {
+//                            TODO("Not yet implemented")
+//                        }
+//
+//                    })
+//
+//                }
+//
+//                override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
+//                    if (result.status.isSuccess) {
+//                        Log.d(TAG, "Connection successful")
+//                    } else {
+//                        Log.e(TAG, "Connection failed")
+//                    }
+//                }
+//
+//                override fun onDisconnected(endpointId: String) {
+//                    Log.d(TAG, "Disconnected from endpoint $endpointId")
+//                }
+//            },
+//            advertisingOptions
+//        ).addOnSuccessListener {
+//            Log.d(TAG, "Advertising started")
+//        }.addOnFailureListener { exception ->
+//            // Handle the exception and show an error message
+//            Log.e(TAG, "Advertising failed: ${exception.message}")
+//        }
+//    }
+
+    fun startNearbyConnection( isAdvertising: Boolean){
         val options = DiscoveryOptions.Builder()
             .setStrategy(Strategy.P2P_CLUSTER)
             .build()
 
-        nearByShareClient.startDiscovery(
-            "User Data",
-            object : EndpointDiscoveryCallback() {
-                override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
+        val callback = object : ConnectionLifecycleCallback(){
+            override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
+                if (isAdvertising){
 
-                    val user = Endpoint(endpointId, info.endpointName)
-                    val updatedUsers = discoveredUsers.value.orEmpty() + user
-                    _discoveredUsers.value = updatedUsers.toList()
+                    nearByShareClient.acceptConnection(endpointId, payloadCallback)
+                } else {
 
+                    nearByShareClient.requestConnection(
+                        android.os.Build.MODEL,
+                        endpointId,
+                        this
+                    )
                 }
-
-                @RequiresApi(Build.VERSION_CODES.N)
-                override fun onEndpointLost(endpointId: String) {
-                    val currentUsers = discoveredUsers.value.orEmpty()
-                    val updatedUsers = currentUsers.filter { it.id == endpointId }
-                    _discoveredUsers.value = updatedUsers.toList()
-                }
-
-            },
-            options
-        )
-            .addOnSuccessListener {
-                Log.d(TAG, "Discovery started")
             }
-            .addOnFailureListener { exception ->
-                // Handle the exception and show an error message
-                Log.e(TAG, "Discovery failed: ${exception.message}")
+
+            override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
+                TODO("Not yet implemented")
             }
-    }
 
-    fun startAdvertising() {
-        val advertisingOptions = AdvertisingOptions.Builder()
-            .setStrategy(Strategy.P2P_CLUSTER)
-            .build()
+            override fun onDisconnected(p0: String) {
+                TODO("Not yet implemented")
+            }
 
-        nearByShareClient.startAdvertising(
-            "User Data", // Service name
-            "com.example.userdata", // Service ID
-            object : ConnectionLifecycleCallback() {
-                override fun onConnectionInitiated(
-                    endpointId: String,
-                    connectionInfo: ConnectionInfo
-                ) {
-                    // Automatically accept the connection on both ends.
-
-                    nearByShareClient.acceptConnection(endpointId, object : PayloadCallback() {
-                        override fun onPayloadReceived(endpointId: String, payload: Payload) {
-                            if (payload.type == Payload.Type.BYTES) {
-                                val userProfileBytes = payload.asBytes()
-                                val userProfile = userProfileBytes?.let { Payload.fromBytes(it) }
-
-                                val responsePayload = userProfile
-                                if (responsePayload != null) {
-                                    nearByShareClient.sendPayload(endpointId, responsePayload)
-                                }
-
-                            }
-                        }
-
-                        override fun onPayloadTransferUpdate(
-                            p0: String,
-                            p1: PayloadTransferUpdate
-                        ) {
-                            TODO("Not yet implemented")
-                        }
-
-                    })
-
-                }
-
-                override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
-                    if (result.status.isSuccess) {
-                        Log.d(TAG, "Connection successful")
-                    } else {
-                        Log.e(TAG, "Connection failed")
-                    }
-                }
-
-                override fun onDisconnected(endpointId: String) {
-                    Log.d(TAG, "Disconnected from endpoint $endpointId")
-                }
-            },
-            advertisingOptions
-        ).addOnSuccessListener {
-            Log.d(TAG, "Advertising started")
-        }.addOnFailureListener { exception ->
-            // Handle the exception and show an error message
-            Log.e(TAG, "Advertising failed: ${exception.message}")
         }
-    }
 
+        val  payloadCallback = object : PayloadCallback() {
+            override fun onPayloadReceived(p0: String, p1: Payload) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+    }
     fun stopDiscovery() {
         nearByShareClient.stopDiscovery()
         Log.d(TAG, "Discovery stopped")

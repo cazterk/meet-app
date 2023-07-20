@@ -51,7 +51,7 @@ fun Home(
     var fonts = getFonts()
     val currentUser by userViewModel.currentUser.observeAsState()
     var name = "${currentUser?.firstName} ${currentUser?.lastName}"
-    var isVisibilityEnabled by remember { mutableStateOf( false ) }
+    var isVisibilityEnabled by remember { mutableStateOf( true ) }
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
@@ -230,15 +230,24 @@ fun Home(
 }
 @Composable
     fun Connections(userView: UserViewModel = hiltViewModel() ){
-        val connections by userView.discoveredUsers.observeAsState(emptyList())
+        val connections by userView.discoveredUsers.observeAsState(mutableListOf())
 
 
         Column {
+
+
+            if (connections.isEmpty()) {
+                Text(text = "No Possible Connections Nearby")
+            }
+            else
             LazyColumn{
                 items(connections){ connection ->
                     Text(connection.name)
+
                 }
+
             }
+
         }
     }
 
