@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -34,8 +35,8 @@ class UserViewModel @Inject constructor(
         get() = _users
 
     //        get() = _currentUser
-    private val _discoveredUsers = MutableLiveData<List<Endpoint>>()
-    val discoveredUsers: LiveData<List<Endpoint>> = _discoveredUsers
+    private val _discoveredUsers = mutableStateListOf<String>()
+    val discoveredUsers: List<String> get() = _discoveredUsers
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -157,6 +158,17 @@ class UserViewModel @Inject constructor(
             .setStrategy(Strategy.P2P_CLUSTER)
             .build()
 
+        val  payloadCallback = object : PayloadCallback() {
+            override fun onPayloadReceived(p0: String, p1: Payload) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {
+                TODO("Not yet implemented")
+            }
+
+        }
+
         val callback = object : ConnectionLifecycleCallback(){
             override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
                 if (isAdvertising){
@@ -172,27 +184,66 @@ class UserViewModel @Inject constructor(
                 }
             }
 
-            override fun onConnectionResult(p0: String, p1: ConnectionResolution) {
-                TODO("Not yet implemented")
+            override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
+                if (result.status.isSuccess){
+                    Log.d(TAG, "Connection established with id: $endpointId")
+                }
+                else {
+                    Log.e(TAG, "Connection failed with $endpointId status: ${result.status}")
+                }
             }
 
-            override fun onDisconnected(p0: String) {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        val  payloadCallback = object : PayloadCallback() {
-            override fun onPayloadReceived(p0: String, p1: Payload) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {
-                TODO("Not yet implemented")
+            override fun onDisconnected(endpoint: String) {
+                Log.d(TAG, "Connection disconnected from $endpoint")
             }
 
         }
 
+        var discoveryCallback = object  : EndpointDiscoveryCallback(){
+            override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
+                if(!_discoveredUsers.contains(endpointId)){
+                    _discoveredUsers.add(endpointId)
+                }
+                Log.d(TAG, "Endpoint found: $endpointId")
+            }
+
+            override fun onEndpointLost(endpointId: String) {
+                _discoveredUsers.remove(endpointId)
+                Log.d(TAG, "Endpoint lost: $endpointId")
+            }
+
+        }
+
+        if(isAdvertising){
+            nearByShareClient.startAdvertising(
+                "User Data",
+                "SERVICE_ID", // Service ID,
+            callback,
+                AdvertisingOptions
+                    .Builder()
+                    .setStrategy(Strategy.P2P_CLUSTER)
+                    .build()
+            )
+                .addOnSuccessListener {
+                    Log.d(TAG, "Advertising started")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Advertising failed: ${exception.message}")
+                }
+        } else {
+            nearByShareClient.startDiscovery(
+                "User Data",
+                discoveryCallback,
+                options
+            )
+                .addOnSuccessListener {
+                    Log.d(TAG, " Discovery started")
+                }
+                .addOnFailureListener { exception ->
+                    Log.d(TAG, "Discovery failed: ${exception.message}")
+                }
+
+        }
     }
     fun stopDiscovery() {
         nearByShareClient.stopDiscovery()
