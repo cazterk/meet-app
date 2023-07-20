@@ -174,7 +174,7 @@ fun Home(
                         onCheckedChange = { isChecked ->
                             isVisibilityEnabled = isChecked
                             if (isChecked) {
-                                userViewModel.startAdvertising()
+                                userViewModel.startNearbyConnection(true)
                             } else {
                                 userViewModel.stopAdvertising()
                             }
@@ -207,7 +207,7 @@ fun Home(
                     }
                     Scaffold(
                         floatingActionButton = {
-                            FloatingActionButton(onClick = { userViewModel.startDiscovery() }) {
+                            FloatingActionButton(onClick = { userViewModel.startNearbyConnection(!isVisibilityEnabled) }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Search,
                                     contentDescription = "Search"
@@ -230,7 +230,10 @@ fun Home(
 }
 @Composable
     fun Connections(userView: UserViewModel = hiltViewModel() ){
-        val connections by userView.discoveredUsers.observeAsState(mutableListOf())
+    LaunchedEffect(Unit){
+
+    }
+        val connections = userView.discoveredUsers
 
 
         Column {
@@ -242,7 +245,7 @@ fun Home(
             else
             LazyColumn{
                 items(connections){ connection ->
-                    Text(connection.name)
+                    Text(connection)
 
                 }
 
@@ -259,7 +262,7 @@ fun Home(
 @Composable
 fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
     val users by userViewModel.users.observeAsState(emptyList())
-    val discoveredUsers by userViewModel.discoveredUsers.observeAsState(emptyList())
+    val discoveredUsers = userViewModel.discoveredUsers
 
 //    val listOfConnectionsData = listOf(
 ////        UserResponse("", ""),
