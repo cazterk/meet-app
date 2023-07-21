@@ -2,7 +2,6 @@ package com.example.meet_app.viewmodel
 
 import android.app.Application
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
@@ -23,7 +22,6 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    context: Context,
     application: Application
 
 ) : ViewModel() {
@@ -60,7 +58,7 @@ class UserViewModel @Inject constructor(
         return user
     }
 
-    private val nearByShareClient = Nearby.getConnectionsClient(context)
+    private val nearByShareClient = Nearby.getConnectionsClient(application)
 
     inner  class  ConnectingProcessCallback : ConnectionLifecycleCallback(){
         override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
