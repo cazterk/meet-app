@@ -174,7 +174,7 @@ fun Home(
                         onCheckedChange = { isChecked ->
                             isVisibilityEnabled = isChecked
                             if (isChecked) {
-                                userViewModel.startNearbyConnection(true)
+                                userViewModel.startAdvertising()
                             } else {
                                 userViewModel.stopAdvertising()
                             }
