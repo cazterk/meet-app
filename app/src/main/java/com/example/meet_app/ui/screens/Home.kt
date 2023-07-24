@@ -207,7 +207,7 @@ fun Home(
                     }
                     Scaffold(
                         floatingActionButton = {
-                            FloatingActionButton(onClick = { userViewModel.startNearbyConnection(!isVisibilityEnabled) }) {
+                            FloatingActionButton(onClick = { userViewModel.startDiscovery() }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Search,
                                     contentDescription = "Search"
