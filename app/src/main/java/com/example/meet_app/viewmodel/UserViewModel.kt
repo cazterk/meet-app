@@ -136,88 +136,8 @@ class UserViewModel @Inject constructor(
             }
     }
 
-    fun startNearbyConnection( isAdvertising: Boolean){
-        val options = DiscoveryOptions.Builder()
-            .setStrategy(Strategy.P2P_CLUSTER)
-            .build()
 
-        val callback = object : ConnectionLifecycleCallback(){
-            override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
-                if (isAdvertising){
-
-                    nearByShareClient.acceptConnection(endpointId, payloadCallback)
-                } else {
-
-                    nearByShareClient.requestConnection(
-                        android.os.Build.MODEL,
-                        endpointId,
-                        this
-                    )
-                }
-            }
-
-            override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
-                if (result.status.isSuccess){
-                    Log.d(TAG, "Connection established with id: $endpointId")
-                }
-                else {
-                    Log.e(TAG, "Connection failed with $endpointId status: ${result.status}")
-                }
-            }
-
-            override fun onDisconnected(endpoint: String) {
-                Log.d(TAG, "Connection disconnected from $endpoint")
-            }
-
-        }
-
-        var discoveryCallback = object  : EndpointDiscoveryCallback(){
-            override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-                if(!_discoveredUsers.contains(endpointId)){
-                    _discoveredUsers.add(endpointId)
-                }
-                Log.d(TAG, "Endpoint found: $endpointId")
-            }
-
-            override fun onEndpointLost(endpointId: String) {
-                _discoveredUsers.remove(endpointId)
-                Log.d(TAG, "Endpoint lost: $endpointId")
-            }
-
-        }
-
-        if(isAdvertising){
-            nearByShareClient.startAdvertising(
-                "User Data",
-                "SERVICE_ID", // Service ID,
-            callback,
-                AdvertisingOptions
-                    .Builder()
-                    .setStrategy(Strategy.P2P_CLUSTER)
-                    .build()
-            )
-                .addOnSuccessListener {
-                    Log.d(TAG, "Advertising started")
-                }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "Advertising failed: ${exception.message}")
-                }
-        } else {
-            nearByShareClient.startDiscovery(
-                "User Data",
-                discoveryCallback,
-                options
-            )
-                .addOnSuccessListener {
-                    Log.d(TAG, " Discovery started")
-                }
-                .addOnFailureListener { exception ->
-                    Log.d(TAG, "Discovery failed: ${exception.message}")
-                }
-
-        }
-    }
-    fun stopDiscovery() {
+    private fun stopDiscovery() {
         nearByShareClient.stopDiscovery()
         Log.d(TAG, "Discovery stopped")
     }
@@ -226,6 +146,14 @@ class UserViewModel @Inject constructor(
         nearByShareClient.stopAdvertising()
         Log.d(TAG, "Advertising stopped")
     }
+
+    fun discoveringStatus(status: Boolean){
+        if (status)
+             startDiscovery()
+        else stopDiscovery()
+
+    }
+
     fun shareUser(endpointId: String) {
         val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
         nearByShareClient.sendPayload(endpointId, payload)
@@ -260,9 +188,7 @@ class UserViewModel @Inject constructor(
 
 
 
-    fun getDiscoverUsers() {
-//        getEndpointUser().
-    }
+
 
     private fun serializeUser(user: UserResponse): ByteArray {
         val data = JSONObject()

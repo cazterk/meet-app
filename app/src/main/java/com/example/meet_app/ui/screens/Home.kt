@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -52,6 +53,7 @@ fun Home(
     val currentUser by userViewModel.currentUser.observeAsState()
     var name = "${currentUser?.firstName} ${currentUser?.lastName}"
     var isVisibilityEnabled by remember { mutableStateOf(true) }
+    var discoveringStatus by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
@@ -207,11 +209,23 @@ fun Home(
                     }
                     Scaffold(
                         floatingActionButton = {
-                            FloatingActionButton(onClick = { userViewModel.startDiscovery() }) {
+                            FloatingActionButton(onClick = {
+                                userViewModel.discoveringStatus(discoveringStatus)
+                                discoveringStatus = !discoveringStatus
+
+                            }) {
+                                if (!discoveringStatus){
                                 Icon(
                                     imageVector = Icons.Outlined.Search,
                                     contentDescription = "Search"
                                 )
+                                }
+                                else{
+                                    Icon(
+                                        imageVector = Icons.Outlined.Stop,
+                                        contentDescription = "Stop"
+                                    )
+                                }
                             }
                         }
                     ) {
