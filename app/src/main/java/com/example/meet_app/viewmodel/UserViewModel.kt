@@ -33,11 +33,9 @@ class UserViewModel @Inject constructor(
     val users: LiveData<List<UserResponse>>
         get() = _users
 
-    //        get() = _currentUser
     private val _discoveredUsers = mutableStateListOf<String>()
     val discoveredUsers: List<String> get() = _discoveredUsers
     private val nearByShareClient = Nearby.getConnectionsClient(application)
-
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -58,20 +56,17 @@ class UserViewModel @Inject constructor(
         inputStream.close()
         return user
     }
-    
 
-
-
-    inner  class  ConnectingProcessCallback : ConnectionLifecycleCallback(){
+    inner class ConnectingProcessCallback : ConnectionLifecycleCallback() {
         private var strendPointId: String? = null
         override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
-            nearByShareClient.acceptConnection(endpointId, payloadCallback )
+            nearByShareClient.acceptConnection(endpointId, payloadCallback)
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
 
             if (result.status.isSuccess) {
-                if(!_discoveredUsers.contains(endpointId)){
+                if (!_discoveredUsers.contains(endpointId)) {
                     _discoveredUsers.add(endpointId)
                 }
                 strendPointId = endpointId
@@ -82,7 +77,6 @@ class UserViewModel @Inject constructor(
             }
         }
 
-
         override fun onDisconnected(endpointId: String) {
             strendPointId = null
             Log.d(TAG, "Disconnected from endpoint $endpointId")
@@ -90,18 +84,20 @@ class UserViewModel @Inject constructor(
 
     }
 
-
-
-    fun startDiscovery() {
+    private fun startDiscovery() {
         val discoveryOptions = DiscoveryOptions.Builder()
             .setStrategy(Strategy.P2P_CLUSTER)
             .build()
 
         nearByShareClient.startDiscovery(
             SERVICE_ID,
-            object :EndpointDiscoveryCallback(){
+            object : EndpointDiscoveryCallback() {
                 override fun onEndpointFound(endpointId: String, ifon: DiscoveredEndpointInfo) {
-                    nearByShareClient.requestConnection(android.os.Build.MODEL, endpointId, ConnectingProcessCallback())
+                    nearByShareClient.requestConnection(
+                        android.os.Build.MODEL,
+                        endpointId,
+                        ConnectingProcessCallback()
+                    )
                 }
 
                 override fun onEndpointLost(p0: String) {
@@ -109,8 +105,7 @@ class UserViewModel @Inject constructor(
                 }
 
 
-            }
-        , discoveryOptions
+            }, discoveryOptions
         )
             .addOnSuccessListener {
                 Log.d(TAG, "Discovery started")
@@ -142,14 +137,14 @@ class UserViewModel @Inject constructor(
         Log.d(TAG, "Discovery stopped")
     }
 
-    fun stopAdvertising(){
+    fun stopAdvertising() {
         nearByShareClient.stopAdvertising()
         Log.d(TAG, "Advertising stopped")
     }
 
-    fun discoveringStatus(status: Boolean){
+    fun discoveringStatus(status: Boolean) {
         if (status)
-             startDiscovery()
+            startDiscovery()
         else stopDiscovery()
 
     }
@@ -184,10 +179,6 @@ class UserViewModel @Inject constructor(
             }
         }
     }
-
-
-
-
 
 
     private fun serializeUser(user: UserResponse): ByteArray {
@@ -228,17 +219,7 @@ class UserViewModel @Inject constructor(
 //        return Payload.fromBytes(data)
 //    }
 //
-//    private val endpointDiscoveryCallback = object : EndpointDiscoveryCallback() {
-//        override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-//            Log.d(TAG, "Endpoint found")
-//            val payload = createPayload(currentUser)
-//            Nearby.getConnectionsClient(context)
-//                .rejectConnection(name, endpointId)
-//        }
-//
-//        override fun onEndpointLost(p0: String) {
-//            TODO("Not yet implemented")
-//        }
+
 //
 //    }
 }
