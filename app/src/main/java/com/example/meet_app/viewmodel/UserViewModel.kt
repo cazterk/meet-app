@@ -29,13 +29,14 @@ class UserViewModel @Inject constructor(
     private val _currentUser = MutableLiveData<UserResponse>()
     val currentUser: LiveData<UserResponse> = _currentUser
 
-    private val _users = MutableLiveData<List<UserResponse>>()
-    val users: LiveData<List<UserResponse>>
-        get() = _users
+    private val _users = mutableStateListOf<UserResponse>()
+    val users: List<UserResponse> get() = _users
 
-    private val _discoveredUsers = mutableStateListOf<String>()
-    val discoveredUsers: List<String> get() = _discoveredUsers
+    private val _discoveredUsers = mutableStateListOf<UserResponse>()
+    val discoveredUsers: List<UserResponse> get() = _discoveredUsers
+
     private val nearByShareClient = Nearby.getConnectionsClient(application)
+    private val userToEndpointMap= HashMap<String, UserResponse>()
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -65,11 +66,18 @@ class UserViewModel @Inject constructor(
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
 
+
             if (result.status.isSuccess) {
-                if (!_discoveredUsers.contains(endpointId)) {
-                    _discoveredUsers.add(endpointId)
+                val currentUser = loadCurrentUser()
+
+                if (!_users.contains(currentUser as UserResponse)) {
+                    _users.add(currentUser as UserResponse)
                 }
-                strendPointId = endpointId
+                // Map current user to corresponding endpoint id
+                currentUser.endpointId = endpointId
+
+                // Add currentUser object to the userEndPointMap
+                userToEndpointMap[endpointId] = currentUser
 
                 Log.d(TAG, "Connection successful")
             } else {
@@ -156,16 +164,16 @@ class UserViewModel @Inject constructor(
     }
 
 
-    fun getEndpointUser(endpoint: Endpoint): UserResponse? {
-        val users = users.value ?: emptyList()
-
-        for (user in users) {
-            if (user.deviceName == endpoint.name || user.deviceId == endpoint.id) {
-                return user
-            }
-        }
-        return null
-    }
+//    private fun getEndpointUser(endpoint: String): UserResponse? {
+//        val users = users.value ?: emptyList()
+//
+//        for (user in users) {
+//             endpoint == user.endpointId
+//                return user
+//
+//        }
+//        return null
+//    }
 
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {

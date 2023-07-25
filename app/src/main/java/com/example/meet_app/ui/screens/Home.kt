@@ -248,7 +248,7 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
     LaunchedEffect(Unit) {
 
     }
-    val connections = userView.discoveredUsers
+    val connections = userView.users
 
 
     Column {
@@ -256,7 +256,7 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
         if (connections.isNotEmpty())
             LazyColumn {
                 items(connections) { connection ->
-                    Text(connection)
+                    ConnectionItem(connection = connection)
 
                 }
             }
@@ -267,10 +267,25 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
     }
 }
 
+@Composable
+fun ConnectionItem(connection : UserResponse){
+
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+    ) {
+        Text(text = "Username: ${connection.username}",
+            style = MaterialTheme.typography.h6)
+        Text(text = "Full Name: ${connection.firstName} ${connection.lastName}",
+        style = MaterialTheme.typography.body1)
+
+    }
+}
+
 
 @Composable
 fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
-    val users by userViewModel.users.observeAsState(emptyList())
+//    val users by userViewModel.users.observeAsState(emptyList())
     val discoveredUsers = userViewModel.discoveredUsers
 
 //    val listOfConnectionsData = listOf(
