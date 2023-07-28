@@ -14,6 +14,7 @@ import com.example.meet_app.util.Constants.SERVICE_ID
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
@@ -36,7 +37,7 @@ class UserViewModel @Inject constructor(
     val discoveredUsers: List<UserResponse> get() = _discoveredUsers
 
     private val nearByShareClient = Nearby.getConnectionsClient(application)
-    private val userToEndpointMap= HashMap<String, UserResponse>()
+    private val userToEndpointMap = HashMap<String, UserResponse>()
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -68,7 +69,10 @@ class UserViewModel @Inject constructor(
 
 
             if (result.status.isSuccess) {
-                val currentUser = loadCurrentUser()
+                GlobalScope.launch {
+                    val currentUser = userRepository.getCurrentUser()
+                    println(currentUser)
+                }
 
                 if (!_users.contains(currentUser as UserResponse)) {
                     _users.add(currentUser as UserResponse)
@@ -122,6 +126,7 @@ class UserViewModel @Inject constructor(
                 // Handle the exception and show an error message
                 Log.e(TAG, "Discovery failed: ${exception.message}")
             }
+
     }
 
     fun startAdvertising() {

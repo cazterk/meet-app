@@ -52,8 +52,8 @@ fun Home(
     var fonts = getFonts()
     val currentUser by userViewModel.currentUser.observeAsState()
     var name = "${currentUser?.firstName} ${currentUser?.lastName}"
-    var isVisibilityEnabled by remember { mutableStateOf(true) }
-    var discoveringStatus by remember { mutableStateOf(false) }
+    var isVisibilityEnabled by remember { mutableStateOf(false) }
+    var discoveringStatus by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
@@ -211,10 +211,11 @@ fun Home(
                         floatingActionButton = {
                             FloatingActionButton(onClick = {
                                 userViewModel.discoveringStatus(discoveringStatus)
+
                                 discoveringStatus = !discoveringStatus
 
                             }) {
-                                if (!discoveringStatus){
+                                if (discoveringStatus){
                                 Icon(
                                     imageVector = Icons.Outlined.Search,
                                     contentDescription = "Search"
