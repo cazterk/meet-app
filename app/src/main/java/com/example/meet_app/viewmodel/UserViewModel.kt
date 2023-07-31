@@ -66,26 +66,25 @@ class UserViewModel @Inject constructor(
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
+            GlobalScope.launch {
+                val currentUser = userRepository.getCurrentUser()
+                println(currentUser)
+                if (result.status.isSuccess) {
 
+                    if (!_users.contains(currentUser)) {
+                        _users.add(currentUser)
 
-            if (result.status.isSuccess) {
-                GlobalScope.launch {
-                    val currentUser = userRepository.getCurrentUser()
-                    println(currentUser)
+                    }
+                    // Map current user to corresponding endpoint id
+                    currentUser.endpointId = endpointId
+
+                    // Add currentUser object to the userEndPointMap
+                    userToEndpointMap[endpointId] = currentUser
+
+                    Log.d(TAG, "Connection successful")
+                } else {
+                    Log.e(TAG, "Connection failed")
                 }
-
-                if (!_users.contains(currentUser as UserResponse)) {
-                    _users.add(currentUser)
-                }
-                // Map current user to corresponding endpoint id
-                currentUser.endpointId = endpointId
-
-                // Add currentUser object to the userEndPointMap
-                userToEndpointMap[endpointId] = currentUser
-
-                Log.d(TAG, "Connection successful")
-            } else {
-                Log.e(TAG, "Connection failed")
             }
         }
 
