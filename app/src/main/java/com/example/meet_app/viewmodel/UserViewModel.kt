@@ -75,7 +75,7 @@ class UserViewModel @Inject constructor(
                 }
 
                 if (!_users.contains(currentUser as UserResponse)) {
-                    _users.add(currentUser as UserResponse)
+                    _users.add(currentUser)
                 }
                 // Map current user to corresponding endpoint id
                 currentUser.endpointId = endpointId
