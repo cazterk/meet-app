@@ -1,4 +1,4 @@
-package com.example.meet_app.ui.screens
+package com.example.meet_app.activity
 
 import android.Manifest
 import android.os.Bundle

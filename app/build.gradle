@@ -67,6 +67,7 @@ dependencies {
     def stream_version = "5.4.0"
     def compose_hilt_version = "2.45"
     def retrofit_version = "2.9.0"
+    def room_version = "2.5.2"
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -118,4 +119,8 @@ dependencies {
     // compose nav destination
     implementation "io.github.raamcosta.compose-destinations:core:1.1.2-beta"
     ksp 'io.github.raamcosta.compose-destinations:ksp:1.1.2-beta'
+
+    // room
+    implementation("androidx.room:room-ktx:$room_version")
+    kapt "androidx.room:room-compiler:$room_version"
 }

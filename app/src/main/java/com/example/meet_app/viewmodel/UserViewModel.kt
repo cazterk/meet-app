@@ -14,7 +14,6 @@ import com.example.meet_app.util.Constants.SERVICE_ID
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
@@ -66,7 +65,7 @@ class UserViewModel @Inject constructor(
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
-            GlobalScope.launch {
+            viewModelScope.launch {
                 val currentUser = userRepository.getCurrentUser()
                 println(currentUser)
                 if (result.status.isSuccess) {
