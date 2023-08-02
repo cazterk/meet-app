@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.meet_app.R
-import com.example.meet_app.api.user.UserResponse
+import com.example.meet_app.api.user.UserEntity
 import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
@@ -269,7 +269,7 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun ConnectionItem(connection : UserResponse){
+fun ConnectionItem(connection : UserEntity){
 
     Column(
         modifier = Modifier
@@ -313,7 +313,7 @@ fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
         ) {
         LazyColumn {
             items(discoveredUsers.size) { user ->
-                ConnectionsListItems(user as UserResponse) { endpointId ->
+                ConnectionsListItems(user as UserEntity) { endpointId ->
                     userViewModel.shareUser(endpointId)
 
                 }
@@ -323,7 +323,7 @@ fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun ConnectionsListItems(user: UserResponse, onShareClick: (String) -> Unit) {
+fun ConnectionsListItems(user: UserEntity, onShareClick: (String) -> Unit) {
     val date = "01/01/2021"
     Column(
         modifier = Modifier

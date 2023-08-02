@@ -3,11 +3,14 @@ package com.example.meet_app.di
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import androidx.room.Room
 import com.example.meet_app.api.user.UserApi
 import com.example.meet_app.api.user.UserRepository
 import com.example.meet_app.auth.AuthApi
 import com.example.meet_app.auth.AuthRepository
 import com.example.meet_app.auth.AuthRepositoryImpl
+import com.example.meet_app.roomDb.AppDatabase
+import com.example.meet_app.roomDb.dao.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,9 +25,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    // api method
     @Provides
     @Singleton
-    fun provideApi( prefs: SharedPreferences): Retrofit {
+    fun provideApi(prefs: SharedPreferences): Retrofit {
         // Create an OkHttpClient instance with the Bearer token
         val token = prefs.getString("jwt", null)
 
@@ -45,6 +49,17 @@ object AppModule {
             .build()
 
 
+    }
+
+    // roomdb method
+    @Provides
+    @Singleton
+    fun provideRoomDatabase(application: Application): AppDatabase {
+        return Room.databaseBuilder(
+            application,
+            AppDatabase::class.java,
+            "meetapp_db"
+        ).build()
     }
 
     // auth related methods
@@ -75,10 +90,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(api:UserApi): UserRepository {
-        return UserRepository(api)
+    fun provideUserRepository(userDao: UserDao, api: UserApi): UserRepository {
+        return UserRepository(userDao, api)
     }
 
+    @Provides
+    @Singleton
+    fun provideUserDao(appDatabase: AppDatabase): UserDao {
+        return appDatabase.userDao()
+    }
 
 
 }

@@ -8,8 +8,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.meet_app.api.user.UserEntity
 import com.example.meet_app.api.user.UserRepository
-import com.example.meet_app.api.user.UserResponse
 import com.example.meet_app.util.Constants.SERVICE_ID
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
@@ -26,17 +26,17 @@ class UserViewModel @Inject constructor(
     application: Application
 
 ) : ViewModel() {
-    private val _currentUser = MutableLiveData<UserResponse>()
-    val currentUser: LiveData<UserResponse> = _currentUser
+    private val _currentUser = MutableLiveData<UserEntity>()
+    val currentUser: LiveData<UserEntity> = _currentUser
 
-    private val _users = mutableStateListOf<UserResponse>()
-    val users: List<UserResponse> get() = _users
+    private val _users = mutableStateListOf<UserEntity>()
+    val users: List<UserEntity> get() = _users
 
-    private val _discoveredUsers = mutableStateListOf<UserResponse>()
-    val discoveredUsers: List<UserResponse> get() = _discoveredUsers
+    private val _discoveredUsers = mutableStateListOf<UserEntity>()
+    val discoveredUsers: List<UserEntity> get() = _discoveredUsers
 
     private val nearByShareClient = Nearby.getConnectionsClient(application)
-    private val userToEndpointMap = HashMap<String, UserResponse>()
+    private val userToEndpointMap = HashMap<String, UserEntity>()
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -49,10 +49,10 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private fun parseUserProfile(userBytes: ByteArray): UserResponse {
+    private fun parseUserProfile(userBytes: ByteArray): UserEntity {
         val inputStream = ByteArrayInputStream(userBytes)
         val objectInputStream = ObjectInputStream(inputStream)
-        val user = objectInputStream.readObject() as UserResponse
+        val user = objectInputStream.readObject() as UserEntity
         objectInputStream.close()
         inputStream.close()
         return user
@@ -192,7 +192,7 @@ class UserViewModel @Inject constructor(
     }
 
 
-    private fun serializeUser(user: UserResponse): ByteArray {
+    private fun serializeUser(user: UserEntity): ByteArray {
         val data = JSONObject()
         data.put("id", user.id)
         data.put("username", user.username)
@@ -201,10 +201,10 @@ class UserViewModel @Inject constructor(
         return data.toString().toByteArray(Charsets.UTF_8)
     }
 
-    private fun deserializeUser(bytes: ByteArray): UserResponse {
+    private fun deserializeUser(bytes: ByteArray): UserEntity {
         val jsonString = String(bytes, Charsets.UTF_8)
         val jsonObject = JSONObject(jsonString)
-        return UserResponse(
+        return UserEntity(
             id = jsonObject.getString("id"),
             username = jsonObject.getString("username"),
             firstName = jsonObject.getString("firstName"),
