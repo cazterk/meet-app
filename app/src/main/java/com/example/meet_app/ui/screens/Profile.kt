@@ -53,7 +53,8 @@ fun Profile(
     val context = LocalContext.current
     val currentUser by userViewModel.currentUser.observeAsState()
 
-    LaunchedEffect(viewModel, context) {
+    LaunchedEffect(viewModel,userViewModel, context) {
+        userViewModel.loadCurrentUser()
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Unauthorized -> {
@@ -71,9 +72,7 @@ fun Profile(
                     ).show()
                     println(result.message)
                 }
-                is AuthResult.Authorized -> {
-                    userViewModel.loadCurrentUser()
-                }
+
             }
         }
 

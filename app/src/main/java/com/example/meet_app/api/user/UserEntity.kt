@@ -7,12 +7,12 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 
 @Entity(tableName = "current_user")
-data class UserEntity(
+data class UserEntity (
     val username: String,
     val firstName: String,
     val lastName: String,
     var endpointId: String? = null,
-    val profileImage: Painter? = null,
+    val profileImage: String?,
     @PrimaryKey(autoGenerate = false)
     val id: String,
 )
@@ -22,7 +22,7 @@ class PainterTypeConverter{
 
     @TypeConverter
     fun from(painter: Painter): String{
-        return gson.toJson(painter)
+        return gson.toJson(painter, String::class.java)
     }
 
     @TypeConverter

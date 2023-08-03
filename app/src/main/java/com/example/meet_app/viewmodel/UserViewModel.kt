@@ -49,6 +49,29 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    fun insertCurrentUser(){
+        viewModelScope.launch {
+            try {
+                userRepository.insertUser()
+            }
+            catch (e: Exception) {
+                print("insert user error" + e.message)
+            }
+        }
+    }
+
+    fun deleteCurrentUser(){
+        viewModelScope.launch {
+            try {
+                userRepository.deleteUser()
+                Log.d(TAG, "delete user")
+            }
+            catch (e: Exception) {
+                print("insert user error" + e.message)
+            }
+        }
+    }
+
     private fun parseUserProfile(userBytes: ByteArray): UserEntity {
         val inputStream = ByteArrayInputStream(userBytes)
         val objectInputStream = ObjectInputStream(inputStream)
@@ -201,16 +224,16 @@ class UserViewModel @Inject constructor(
         return data.toString().toByteArray(Charsets.UTF_8)
     }
 
-    private fun deserializeUser(bytes: ByteArray): UserEntity {
-        val jsonString = String(bytes, Charsets.UTF_8)
-        val jsonObject = JSONObject(jsonString)
-        return UserEntity(
-            id = jsonObject.getString("id"),
-            username = jsonObject.getString("username"),
-            firstName = jsonObject.getString("firstName"),
-            lastName = jsonObject.getString("lastName"),
-        )
-    }
+//    private fun deserializeUser(bytes: ByteArray): UserEntity {
+//        val jsonString = String(bytes, Charsets.UTF_8)
+//        val jsonObject = JSONObject(jsonString)
+//        return UserEntity(
+//            id = jsonObject.getString("id"),
+//            username = jsonObject.getString("username"),
+//            firstName = jsonObject.getString("firstName"),
+//            lastName = jsonObject.getString("lastName"),
+//        )
+//    }
 //companion object
 //    fun UserResponse.fromPayload(payload: Payload): UserResponse {
 //        val data = payload.asBytes()?.toString(Charsets.UTF_8) ?: ""

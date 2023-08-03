@@ -56,7 +56,8 @@ fun Home(
     var discoveringStatus by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
-    LaunchedEffect(viewModel, context) {
+    LaunchedEffect(viewModel, userViewModel, context) {
+        userViewModel.loadCurrentUser()
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Authorized -> {
@@ -66,7 +67,7 @@ fun Home(
                         Toast.LENGTH_LONG
                     ).show()
 
-                    userViewModel.loadCurrentUser()
+
                 }
                 is AuthResult.Unauthorized -> {
                     navController.navigate(Screen.Login.withArgs("login")) {
@@ -211,7 +212,6 @@ fun Home(
                         floatingActionButton = {
                             FloatingActionButton(onClick = {
                                 userViewModel.discoveringStatus(discoveringStatus)
-
                                 discoveringStatus = !discoveringStatus
 
                             }) {
@@ -336,16 +336,16 @@ fun ConnectionsListItems(user: UserEntity, onShareClick: (String) -> Unit) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            user.profileImage?.let {
-                Image(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(shape = CircleShape),
-                    painter = it,
-                    contentDescription = ""
-
-                )
-            }
+//            user.profileImage?.let {
+//                Image(
+//                    modifier = Modifier
+//                        .size(50.dp)
+//                        .clip(shape = CircleShape),
+//                    painter = it,
+//                    contentDescription = ""
+//
+//                )
+//            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

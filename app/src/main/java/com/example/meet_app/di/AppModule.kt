@@ -77,8 +77,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(api: AuthApi, prefs: SharedPreferences): AuthRepository {
-        return AuthRepositoryImpl(api, prefs)
+    fun provideAuthRepository(api: AuthApi, userApi: UserApi, userDao: UserDao, prefs: SharedPreferences): AuthRepository {
+        return AuthRepositoryImpl(api,userApi,prefs, userDao)
     }
 
     // user related methods
