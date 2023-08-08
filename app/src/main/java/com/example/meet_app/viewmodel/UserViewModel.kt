@@ -16,7 +16,6 @@ import com.google.android.gms.nearby.connection.*
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
 import javax.inject.Inject
@@ -29,9 +28,6 @@ class UserViewModel @Inject constructor(
 ) : ViewModel() {
     private val _currentUser = MutableLiveData<UserEntity>()
     val currentUser: LiveData<UserEntity> = _currentUser
-
-    private val _users = mutableStateListOf<UserEntity>()
-    val users: List<UserEntity> get() = _users
 
     private val _discoveredUsers = mutableStateListOf<UserEntity>()
     val discoveredUsers: List<UserEntity> get() = _discoveredUsers
@@ -48,27 +44,6 @@ class UserViewModel @Inject constructor(
                 _currentUser.value = response
             } catch (e: Exception) {
                 print("get user error" + e.message)
-            }
-        }
-    }
-
-    fun insertCurrentUser() {
-        viewModelScope.launch {
-            try {
-                userRepository.insertUser()
-            } catch (e: Exception) {
-                print("insert user error" + e.message)
-            }
-        }
-    }
-
-    fun deleteCurrentUser() {
-        viewModelScope.launch {
-            try {
-                userRepository.deleteUser()
-                Log.d(TAG, "delete user")
-            } catch (e: Exception) {
-                print("insert user error" + e.message)
             }
         }
     }
@@ -191,33 +166,22 @@ class UserViewModel @Inject constructor(
 
     }
 
-
-//    private fun getEndpointUser(endpoint: String): UserResponse? {
-//        val users = users.value ?: emptyList()
-//
-//        for (user in users) {
-//             endpoint == user.endpointId
-//                return user
-//
-//        }
-//        return null
-//    }
-
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
             if (payload.type == Payload.Type.BYTES) {
                 val userJson = payload.asBytes()?.toString(Charsets.UTF_8)
-                userJson?.let {
-                    val receivedUser = Gson().fromJson(it, UserEntity::class.java)
+                userJson?.let { jsonString ->
+                    val receivedUser = Gson().fromJson(jsonString, UserEntity::class.java)
 
-
-                    _discoveredUsers.add(receivedUser)
-
+                    // Check if the received user already exists in the list based on their ID
+                    val existingUser = _discoveredUsers.find { it.id == receivedUser.id }
+                    if (existingUser == null) {
+                        _discoveredUsers.add(receivedUser)
+                    }
                 }
             }
 
             if (!payloadSent) {
-                // Fire your method or code block
                 sendPayloadToConnectedDevice(endpointId)
                 payloadSent = true
             }
@@ -244,61 +208,14 @@ class UserViewModel @Inject constructor(
         }
     }
 
-fun removeDuplicatesUsersByID(users: MutableList<UserEntity>){
-    val uniqueUsers = LinkedHashMap<String, UserEntity>()
+    fun removeDuplicatesUsersByID(users: MutableList<UserEntity>) {
+        val uniqueUsers = LinkedHashMap<String, UserEntity>()
 
-    for (user in users) {
-    uniqueUsers[user.id] = user
+        for (user in users) {
+            uniqueUsers[user.id] = user
+        }
+
+        users.clear()
+        users.addAll(uniqueUsers.values)
     }
-
-    users.clear()
-    users.addAll(uniqueUsers.values)
 }
-
-    private fun serializeUser(user: UserEntity): ByteArray {
-        val data = JSONObject()
-        data.put("id", user.id)
-        data.put("username", user.username)
-        data.put("firstName", user.firstName)
-        data.put("lastName", user.lastName)
-        return data.toString().toByteArray(Charsets.UTF_8)
-    }
-
-//    private fun deserializeUser(bytes: ByteArray): UserEntity {
-//        val jsonString = String(bytes, Charsets.UTF_8)
-//        val jsonObject = JSONObject(jsonString)
-//        return UserEntity(
-//            id = jsonObject.getString("id"),
-//            username = jsonObject.getString("username"),
-//            firstName = jsonObject.getString("firstName"),
-//            lastName = jsonObject.getString("lastName"),
-//        )
-//    }
-//companion object
-//    fun UserResponse.fromPayload(payload: Payload): UserResponse {
-//        val data = payload.asBytes()?.toString(Charsets.UTF_8) ?: ""
-//        val jsonObject = JSONObject(data)
-//        return UserResponse(
-//            jsonObject.getString("id"),
-//            jsonObject.getString("username"),
-//            jsonObject.getString("firstName"),
-//            jsonObject.getString("lastName")
-//        )
-//    }
-//
-
-//    private fun createPayload(user: LiveData<UserResponse>): Payload {
-//        val gson = Gson()
-//        val data = gson.toJson(user).toByteArray()
-//        return Payload.fromBytes(data)
-//    }
-//
-
-//
-//    }
-}
-
-data class Endpoint(
-    val id: String,
-    val name: String
-)
