@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -215,13 +214,12 @@ fun Home(
                                 discoveringStatus = !discoveringStatus
 
                             }) {
-                                if (discoveringStatus){
-                                Icon(
-                                    imageVector = Icons.Outlined.Search,
-                                    contentDescription = "Search"
-                                )
-                                }
-                                else{
+                                if (discoveringStatus) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Search,
+                                        contentDescription = "Search"
+                                    )
+                                } else {
                                     Icon(
                                         imageVector = Icons.Outlined.Stop,
                                         contentDescription = "Stop"
@@ -269,18 +267,80 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun ConnectionItem(connection : UserEntity){
-
+fun ConnectionItem(connection: UserEntity) {
+    val date = "01/01/2021"
     Column(
         modifier = Modifier
-            .padding(8.dp)
+            .fillMaxSize()
+            .padding(top = 10.dp)
     ) {
-        Text(text = "Username: ${connection.username}",
-            style = MaterialTheme.typography.h6)
-        Text(text = "Full Name: ${connection.firstName} ${connection.lastName}",
-        style = MaterialTheme.typography.body1)
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            connection.profileImage?.let {
+                Image(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(shape = CircleShape),
+                    painter = it,
+                    contentDescription = ""
+
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(weight = 3f, fill = false)
+                        .padding(start = 16.dp)
+                ) {
+                    Text(
+                        text = " $connection.firstName $connection.lastName",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.SemiBold,
+
+                            ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "Date Connected: $date",
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            letterSpacing = (0.1).sp,
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                }
+            }
+
+        }
+        Text(
+            text = "Username: ${connection.username}",
+            style = MaterialTheme.typography.h6
+        )
+        Text(
+            text = "Full Name: ${connection.firstName} ${connection.lastName}",
+            style = MaterialTheme.typography.body1
+        )
 
     }
+}
+
+fun Image(modifier: Modifier, painter: String, contentDescription: String) {
+
 }
 
 
@@ -307,85 +367,85 @@ fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
 //            "01/01/2021"
 //        )
 //    )
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-
-        ) {
-        LazyColumn {
-            items(discoveredUsers.size) { user ->
-                ConnectionsListItems(user as UserEntity) { endpointId ->
-                    userViewModel.shareUser(endpointId)
-
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ConnectionsListItems(user: UserEntity, onShareClick: (String) -> Unit) {
-    val date = "01/01/2021"
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 10.dp)
-    )
-    {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-//            user.profileImage?.let {
-//                Image(
-//                    modifier = Modifier
-//                        .size(50.dp)
-//                        .clip(shape = CircleShape),
-//                    painter = it,
-//                    contentDescription = ""
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
 //
-//                )
+//        ) {
+//        LazyColumn {
+//            items(discoveredUsers.size) { user ->
+//                ConnectionsListItems(user as UserEntity) { endpointId ->
+//                    userViewModel.shareUser(endpointId)
+//
+//                }
 //            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(weight = 3f, fill = false)
-                        .padding(start = 16.dp)
-                ) {
-                    Text(
-                        text = " $user.firstName $user.lastName",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontFamily = fonts,
-                            fontWeight = FontWeight.SemiBold,
-
-                            ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = "Date Connected: $date",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            color = Color.Gray,
-                            letterSpacing = (0.1).sp,
-                            fontFamily = fonts,
-                            fontWeight = FontWeight.Normal
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                }
-            }
-        }
-    }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun ConnectionsListItems(user: UserEntity, onShareClick: (String) -> Unit) {
+//    val date = "01/01/2021"
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(top = 10.dp)
+//    )
+//    {
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth(),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+////            user.profileImage?.let {
+////                Image(
+////                    modifier = Modifier
+////                        .size(50.dp)
+////                        .clip(shape = CircleShape),
+////                    painter = it,
+////                    contentDescription = ""
+////
+////                )
+////            }
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Column(
+//                    modifier = Modifier
+//                        .weight(weight = 3f, fill = false)
+//                        .padding(start = 16.dp)
+//                ) {
+//                    Text(
+//                        text = " $user.firstName $user.lastName",
+//                        style = TextStyle(
+//                            fontSize = 16.sp,
+//                            fontFamily = fonts,
+//                            fontWeight = FontWeight.SemiBold,
+//
+//                            ),
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis
+//                    )
+//                    Text(
+//                        text = "Date Connected: $date",
+//                        style = TextStyle(
+//                            fontSize = 12.sp,
+//                            color = Color.Gray,
+//                            letterSpacing = (0.1).sp,
+//                            fontFamily = fonts,
+//                            fontWeight = FontWeight.Normal
+//                        ),
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis
+//                    )
+//
+//                }
+//            }
+//        }
+//    }
 
 }
 
 
-data class connectionsData(val fullName: String, val image: Painter, val date: String)
+
