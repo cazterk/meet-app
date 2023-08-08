@@ -13,6 +13,7 @@ import com.example.meet_app.api.user.UserRepository
 import com.example.meet_app.util.Constants.SERVICE_ID
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -38,6 +39,8 @@ class UserViewModel @Inject constructor(
     private val nearByShareClient = Nearby.getConnectionsClient(application)
     private val userToEndpointMap = HashMap<String, UserEntity>()
 
+    private var payloadSent = false
+
     fun loadCurrentUser() {
         viewModelScope.launch {
             try {
@@ -49,24 +52,22 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun insertCurrentUser(){
+    fun insertCurrentUser() {
         viewModelScope.launch {
             try {
                 userRepository.insertUser()
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 print("insert user error" + e.message)
             }
         }
     }
 
-    fun deleteCurrentUser(){
+    fun deleteCurrentUser() {
         viewModelScope.launch {
             try {
                 userRepository.deleteUser()
                 Log.d(TAG, "delete user")
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 print("insert user error" + e.message)
             }
         }
@@ -81,28 +82,28 @@ class UserViewModel @Inject constructor(
         return user
     }
 
+    fun receiveUserData(userJson: String) {
+        val receivedUser = Gson().fromJson(userJson, UserEntity::class.java)
+        _currentUser.value = receivedUser
+    }
+
     inner class ConnectingProcessCallback : ConnectionLifecycleCallback() {
         private var strendPointId: String? = null
         override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
             nearByShareClient.acceptConnection(endpointId, payloadCallback)
+
+
+            sendPayloadToConnectedDevice(endpointId)
+
+
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
             viewModelScope.launch {
                 val currentUser = userRepository.getCurrentUser()
                 println(currentUser)
+
                 if (result.status.isSuccess) {
-
-                    if (!_users.contains(currentUser)) {
-                        _users.add(currentUser)
-
-                    }
-                    // Map current user to corresponding endpoint id
-                    currentUser.endpointId = endpointId
-
-                    // Add currentUser object to the userEndPointMap
-                    userToEndpointMap[endpointId] = currentUser
-
                     Log.d(TAG, "Connection successful")
                 } else {
                     Log.e(TAG, "Connection failed")
@@ -116,6 +117,7 @@ class UserViewModel @Inject constructor(
         }
 
     }
+
 
     private fun startDiscovery() {
         val discoveryOptions = DiscoveryOptions.Builder()
@@ -203,7 +205,23 @@ class UserViewModel @Inject constructor(
 
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
-            val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
+            if (payload.type == Payload.Type.BYTES) {
+                val userJson = payload.asBytes()?.toString(Charsets.UTF_8)
+                userJson?.let {
+                    val receivedUser = Gson().fromJson(it, UserEntity::class.java)
+
+
+                    _discoveredUsers.add(receivedUser)
+
+                }
+            }
+
+            if (!payloadSent) {
+                // Fire your method or code block
+                sendPayloadToConnectedDevice(endpointId)
+                payloadSent = true
+            }
+//            val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
             Log.d(TAG, "Received payload from $endpointId: $payload")
         }
 
@@ -214,6 +232,28 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    private fun sendPayloadToConnectedDevice(endpointId: String) {
+        viewModelScope.launch {
+            val currentUser = userRepository.getCurrentUser()
+            val currentUserJson = Gson().toJson(currentUser)
+
+            nearByShareClient.sendPayload(
+                endpointId,
+                Payload.fromBytes(currentUserJson.toByteArray())
+            )
+        }
+    }
+
+fun removeDuplicatesUsersByID(users: MutableList<UserEntity>){
+    val uniqueUsers = LinkedHashMap<String, UserEntity>()
+
+    for (user in users) {
+    uniqueUsers[user.id] = user
+    }
+
+    users.clear()
+    users.addAll(uniqueUsers.values)
+}
 
     private fun serializeUser(user: UserEntity): ByteArray {
         val data = JSONObject()

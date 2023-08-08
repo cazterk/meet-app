@@ -249,7 +249,7 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
     LaunchedEffect(Unit) {
 
     }
-    val connections = userView.users
+    val connections = userView.discoveredUsers
 
 
     Column {

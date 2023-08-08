@@ -43,7 +43,8 @@ object AppModule {
             .build()
 
         return Retrofit.Builder()
-            .baseUrl("http://192.168.194.252:8080/")
+//            .baseUrl("http://192.168.153.117:8080/")
+            .baseUrl("http://192.168.132.164:8080/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -77,8 +78,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(api: AuthApi, userApi: UserApi, userDao: UserDao, prefs: SharedPreferences): AuthRepository {
-        return AuthRepositoryImpl(api,userApi,prefs, userDao)
+    fun provideAuthRepository(
+        api: AuthApi,
+        userApi: UserApi,
+        userDao: UserDao,
+        prefs: SharedPreferences
+    ): AuthRepository {
+        return AuthRepositoryImpl(api, userApi, prefs, userDao)
     }
 
     // user related methods
