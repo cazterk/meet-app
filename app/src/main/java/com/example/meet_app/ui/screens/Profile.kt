@@ -6,6 +6,9 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -57,6 +60,18 @@ fun Profile(
     val context = LocalContext.current
     val currentUser by userViewModel.currentUser.observeAsState()
     val icons = Icons.Outlined
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+    val profilePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+
+        ) { uri ->
+        uri?.let { selectedUri ->
+            val newProfileImagePath = selectedUri.toString()
+            currentUser?.let { userViewModel.updateProfileImage(it.id, newProfileImagePath) }
+        }
+    }
 
     LaunchedEffect(viewModel, userViewModel, context) {
         userViewModel.loadCurrentUser()
@@ -128,12 +143,18 @@ fun Profile(
                 Image(
                     modifier = Modifier
                         .size(65.dp)
-                        .clip(shape = CircleShape),
+                        .clip(shape = CircleShape)
+                        .clickable {
+                            profilePhotoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
                     painter = (if (currentUser?.profileImage != null) {
                         rememberAsyncImagePainter(currentUser?.profileImage)
                     } else {
                         painterResource(R.drawable.profile_image_placeholder)
                     }),
+
                     contentDescription = "Image"
                 )
                 Row(

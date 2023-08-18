@@ -46,8 +46,10 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateProfileImage(userId: String, ProfileImage: String) {
-        userRepository.updateProfileImage(userId, ProfileImage)
+    fun updateProfileImage(userId: String, ProfileImage: String) {
+        viewModelScope.launch {
+            userRepository.updateProfileImage(userId, ProfileImage)
+        }
     }
 
     inner class ConnectingProcessCallback : ConnectionLifecycleCallback() {
