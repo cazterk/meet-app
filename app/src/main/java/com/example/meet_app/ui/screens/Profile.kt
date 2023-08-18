@@ -1,7 +1,10 @@
 package com.example.meet_app.ui.screens
 
 
+//import coil.compose.rememberAsyncImagePainter
 import android.content.Context
+import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.meet_app.R
 import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
@@ -52,8 +56,9 @@ fun Profile(
     val fonts = getFonts()
     val context = LocalContext.current
     val currentUser by userViewModel.currentUser.observeAsState()
+    val icons = Icons.Outlined
 
-    LaunchedEffect(viewModel,userViewModel, context) {
+    LaunchedEffect(viewModel, userViewModel, context) {
         userViewModel.loadCurrentUser()
         viewModel.authResults.collect { result ->
             when (result) {
@@ -124,7 +129,11 @@ fun Profile(
                     modifier = Modifier
                         .size(65.dp)
                         .clip(shape = CircleShape),
-                    painter = painterResource(id = R.drawable.profile),
+                    painter = (if (currentUser?.profileImage != null) {
+                        rememberAsyncImagePainter(currentUser?.profileImage)
+                    } else {
+                        painterResource(R.drawable.profile_image_placeholder)
+                    }),
                     contentDescription = "Image"
                 )
                 Row(
@@ -337,3 +346,18 @@ data class OptionsData(
     val description: String,
     val navTo: String? = null
 )
+
+
+fun getImagePathFromUri(context: Context, uri: Uri): String? {
+    val cursor = context.contentResolver.query(uri, null, null, null, null, null)
+    cursor?.let {
+        it.moveToFirst()
+        val columnIndex = it.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+        if (columnIndex != -1) {
+            val imagePath = it.getString(columnIndex)
+            it.close()
+        }
+    }
+    cursor?.close()
+    return null
+}

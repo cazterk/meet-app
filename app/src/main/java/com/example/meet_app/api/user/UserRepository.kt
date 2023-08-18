@@ -44,4 +44,8 @@ class UserRepository @Inject constructor(
     suspend fun deleteUser() {
         userDao.deleteUser()
     }
+
+    suspend fun updateProfileImage(userId: String, profileImage: String) {
+        userDao.updateProfileImage(userId, profileImage)
+    }
 }

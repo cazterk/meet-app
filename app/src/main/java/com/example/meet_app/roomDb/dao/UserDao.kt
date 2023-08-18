@@ -17,5 +17,9 @@ interface UserDao {
 
     @Query("DELETE  FROM current_user")
     suspend fun deleteUser()
+
+    @Query("UPDATE current_user SET profileImage = :newProfileImage WHERE id = :userId")
+    suspend fun updateProfileImage(userId: String, newProfileImage: String)
+
 }
 

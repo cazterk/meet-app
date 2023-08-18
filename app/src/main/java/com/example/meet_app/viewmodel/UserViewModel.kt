@@ -16,8 +16,6 @@ import com.google.android.gms.nearby.connection.*
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.io.ByteArrayInputStream
-import java.io.ObjectInputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +31,7 @@ class UserViewModel @Inject constructor(
     val discoveredUsers: List<UserEntity> get() = _discoveredUsers
 
     private val nearByShareClient = Nearby.getConnectionsClient(application)
-    private val userToEndpointMap = HashMap<String, UserEntity>()
+
 
     private var payloadSent = false
 
@@ -48,18 +46,8 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private fun parseUserProfile(userBytes: ByteArray): UserEntity {
-        val inputStream = ByteArrayInputStream(userBytes)
-        val objectInputStream = ObjectInputStream(inputStream)
-        val user = objectInputStream.readObject() as UserEntity
-        objectInputStream.close()
-        inputStream.close()
-        return user
-    }
-
-    fun receiveUserData(userJson: String) {
-        val receivedUser = Gson().fromJson(userJson, UserEntity::class.java)
-        _currentUser.value = receivedUser
+    suspend fun updateProfileImage(userId: String, ProfileImage: String) {
+        userRepository.updateProfileImage(userId, ProfileImage)
     }
 
     inner class ConnectingProcessCallback : ConnectionLifecycleCallback() {
@@ -160,12 +148,6 @@ class UserViewModel @Inject constructor(
 
     }
 
-    fun shareUser(endpointId: String) {
-        val payload = Payload.fromBytes(currentUser.value.toString().toByteArray())
-        nearByShareClient.sendPayload(endpointId, payload)
-
-    }
-
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
             if (payload.type == Payload.Type.BYTES) {
@@ -206,16 +188,5 @@ class UserViewModel @Inject constructor(
                 Payload.fromBytes(currentUserJson.toByteArray())
             )
         }
-    }
-
-    fun removeDuplicatesUsersByID(users: MutableList<UserEntity>) {
-        val uniqueUsers = LinkedHashMap<String, UserEntity>()
-
-        for (user in users) {
-            uniqueUsers[user.id] = user
-        }
-
-        users.clear()
-        users.addAll(uniqueUsers.values)
     }
 }

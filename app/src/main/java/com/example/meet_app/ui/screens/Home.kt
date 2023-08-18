@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.meet_app.R
 import com.example.meet_app.api.user.UserEntity
 import com.example.meet_app.auth.AuthResult
@@ -107,12 +108,16 @@ fun Home(
                 Spacer(modifier = Modifier.width(8.dp))
                 Image(
                     modifier = Modifier
-                        .size(55.dp)
+                        .size(65.dp)
                         .clip(shape = CircleShape)
                         .clickable {
                             navController.navigate(Screen.Profile.withArgs("profile"))
                         },
-                    painter = painterResource(id = R.drawable.profile),
+                    painter = (if (currentUser?.profileImage != null) {
+                        rememberAsyncImagePainter(currentUser?.profileImage)
+                    } else {
+                        painterResource(R.drawable.profile_image_placeholder)
+                    }),
                     contentDescription = "Image"
                 )
                 Column(
@@ -284,8 +289,12 @@ fun ConnectionItem(connection: UserEntity) {
                     modifier = Modifier
                         .size(50.dp)
                         .clip(shape = CircleShape),
-                    painter = it,
-                    contentDescription = ""
+                    painter = (if (connection?.profileImage != null) {
+                        rememberAsyncImagePainter(it)
+                    } else {
+                        painterResource(R.drawable.profile_image_placeholder)
+                    }),
+                    contentDescription = "Image"
 
                 )
             }
@@ -300,7 +309,7 @@ fun ConnectionItem(connection: UserEntity) {
                         .padding(start = 16.dp)
                 ) {
                     Text(
-                        text = " $connection.firstName $connection.lastName",
+                        text = "${connection.firstName} ${connection.lastName}",
                         style = TextStyle(
                             fontSize = 16.sp,
                             fontFamily = fonts,
@@ -327,14 +336,7 @@ fun ConnectionItem(connection: UserEntity) {
             }
 
         }
-        Text(
-            text = "Username: ${connection.username}",
-            style = MaterialTheme.typography.h6
-        )
-        Text(
-            text = "Full Name: ${connection.firstName} ${connection.lastName}",
-            style = MaterialTheme.typography.body1
-        )
+
 
     }
 }
