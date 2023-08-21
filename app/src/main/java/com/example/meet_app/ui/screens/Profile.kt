@@ -2,9 +2,11 @@ package com.example.meet_app.ui.screens
 
 
 //import coil.compose.rememberAsyncImagePainter
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -27,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,7 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.meet_app.R
 import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
@@ -73,6 +76,32 @@ fun Profile(
         }
     }
 
+    val profilePainter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current)
+            .data(
+                data =
+                if (currentUser?.profileImage != null)
+                    (currentUser?.profileImage)
+                else (R.drawable.profile_image_placeholder)
+            )
+
+            .apply(block = fun ImageRequest.Builder.() {
+                error(R.drawable.error)
+                crossfade(1000)
+
+
+            }).build(),
+        onError={throwable ->
+            Log.e(TAG, "Error loading profile image: ${throwable.result}")
+        }
+    )
+//        .also { painter ->
+//        if (painter.state is AsyncImagePainter.State.Error) {
+//            val errorState = painter.state as AsyncImagePainter.State.Error
+//            Log.e(TAG, "image error: ${errorState.painter}")
+//        }
+//    }
+    val profilePainterState = profilePainter.state
     LaunchedEffect(viewModel, userViewModel, context) {
         userViewModel.loadCurrentUser()
         viewModel.authResults.collect { result ->
@@ -142,21 +171,19 @@ fun Profile(
             ) {
                 Image(
                     modifier = Modifier
-                        .size(65.dp)
+                        .size(55.dp)
                         .clip(shape = CircleShape)
                         .clickable {
                             profilePhotoPickerLauncher.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                         },
-                    painter = (if (currentUser?.profileImage != null) {
-                        rememberAsyncImagePainter(currentUser?.profileImage)
-                    } else {
-                        painterResource(R.drawable.profile_image_placeholder)
-                    }),
-
+                    painter = profilePainter,
                     contentDescription = "Image"
                 )
+                if (profilePainterState is AsyncImagePainter.State.Loading) {
+                    CircularProgressIndicator()
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,

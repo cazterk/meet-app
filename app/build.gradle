@@ -69,6 +69,7 @@ dependencies {
     def retrofit_version = "2.9.0"
     def room_version = "2.5.2"
     def coil_version = "2.2.0"
+    def accompanist_version = "0.15.0"
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -128,6 +129,9 @@ dependencies {
     // coil
 
     implementation "io.coil-kt:coil-compose:$coil_version"
+
+    // coil accompanist
+    implementation("com.google.accompanist:accompanist-coil:$accompanist_version")
 
 
 }
