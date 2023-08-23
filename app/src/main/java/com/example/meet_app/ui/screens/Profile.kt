@@ -46,6 +46,7 @@ import com.example.meet_app.ui.auth.AuthUIEvent
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
 import com.example.meet_app.viewmodel.AuthViewModel
+import com.example.meet_app.viewmodel.ImagesViewModel
 import com.example.meet_app.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -57,7 +58,8 @@ fun Profile(
     navController: NavController,
     name: String?,
     viewModel: AuthViewModel = hiltViewModel(),
-    userViewModel: UserViewModel = hiltViewModel()
+    userViewModel: UserViewModel = hiltViewModel(),
+    imagesViewModel: ImagesViewModel = hiltViewModel()
 ) {
     val fonts = getFonts()
     val context = LocalContext.current
@@ -71,8 +73,12 @@ fun Profile(
 
         ) { uri ->
         uri?.let { selectedUri ->
-            val newProfileImagePath = selectedUri.toString()
-            currentUser?.let { userViewModel.updateProfileImage(it.id, newProfileImagePath) }
+            val newProfileImagePath = imagesViewModel.saveProfileImageToFolder(context,selectedUri)
+            currentUser?.let {
+                if (newProfileImagePath != null) {
+                    userViewModel.updateProfileImage(it.id, newProfileImagePath)
+                }
+            }
         }
     }
 
@@ -91,7 +97,7 @@ fun Profile(
 
 
             }).build(),
-        onError={throwable ->
+        onError = { throwable ->
             Log.e(TAG, "Error loading profile image: ${throwable.result}")
         }
     )
@@ -124,6 +130,7 @@ fun Profile(
 
             }
         }
+
 
     }
     Column(//
