@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -65,15 +66,12 @@ fun Profile(
     val context = LocalContext.current
     val currentUser by userViewModel.currentUser.observeAsState()
     val icons = Icons.Outlined
-    var selectedImageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
     val profilePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
 
         ) { uri ->
         uri?.let { selectedUri ->
-            val newProfileImagePath = imagesViewModel.saveProfileImageToFolder(context,selectedUri)
+            val newProfileImagePath = imagesViewModel.saveProfileImageToFolder(context, selectedUri)
             currentUser?.let {
                 if (newProfileImagePath != null) {
                     userViewModel.updateProfileImage(it.id, newProfileImagePath)
@@ -178,7 +176,7 @@ fun Profile(
             ) {
                 Image(
                     modifier = Modifier
-                        .size(55.dp)
+                        .size(65.dp)
                         .clip(shape = CircleShape)
                         .clickable {
                             profilePhotoPickerLauncher.launch(
@@ -186,7 +184,9 @@ fun Profile(
                             )
                         },
                     painter = profilePainter,
+                    contentScale = ContentScale.Crop,
                     contentDescription = "Image"
+
                 )
                 if (profilePainterState is AsyncImagePainter.State.Loading) {
                     CircularProgressIndicator()

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -118,6 +119,7 @@ fun Home(
                     } else {
                         painterResource(R.drawable.profile_image_placeholder)
                     }),
+                    contentScale = ContentScale.Crop,
                     contentDescription = "Image"
                 )
                 Column(
@@ -287,13 +289,14 @@ fun ConnectionItem(connection: UserEntity) {
             connection.profileImage?.let {
                 Image(
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(65.dp)
                         .clip(shape = CircleShape),
                     painter = (if (connection?.profileImage != null) {
                         rememberAsyncImagePainter(it)
                     } else {
                         painterResource(R.drawable.profile_image_placeholder)
                     }),
+                    contentScale = ContentScale.Crop,
                     contentDescription = "Image"
 
                 )
