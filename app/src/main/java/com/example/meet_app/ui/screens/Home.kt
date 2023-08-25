@@ -78,6 +78,10 @@ fun Home(
                     }
 
                 }
+                is AuthResult.UnknownError -> {
+                    // Handle the unknown error case here
+                    // You can show an error message, log the error, or take appropriate action
+                }
             }
         }
 

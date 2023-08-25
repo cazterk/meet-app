@@ -126,6 +126,7 @@ fun Profile(
                     println(result.message)
                 }
 
+                else -> {}
             }
         }
 
