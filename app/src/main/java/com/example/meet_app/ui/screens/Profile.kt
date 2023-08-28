@@ -4,8 +4,6 @@ package com.example.meet_app.ui.screens
 //import coil.compose.rememberAsyncImagePainter
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,16 +11,45 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,10 +77,12 @@ import com.example.meet_app.viewmodel.AuthViewModel
 import com.example.meet_app.viewmodel.ImagesViewModel
 import com.example.meet_app.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private val optionsList: ArrayList<OptionsData> = ArrayList()
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Profile(
     navController: NavController,
@@ -66,6 +95,9 @@ fun Profile(
     val context = LocalContext.current
     val currentUser by userViewModel.currentUser.observeAsState()
     val icons = Icons.Outlined
+    val refreshScope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+    var itemCount by remember { mutableIntStateOf(1) }
     val profilePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
 
@@ -99,12 +131,7 @@ fun Profile(
             Log.e(TAG, "Error loading profile image: ${throwable.result}")
         }
     )
-//        .also { painter ->
-//        if (painter.state is AsyncImagePainter.State.Error) {
-//            val errorState = painter.state as AsyncImagePainter.State.Error
-//            Log.e(TAG, "image error: ${errorState.painter}")
-//        }
-//    }
+
     val profilePainterState = profilePainter.state
     LaunchedEffect(viewModel, userViewModel, context) {
         userViewModel.loadCurrentUser()
@@ -117,6 +144,7 @@ fun Profile(
                         }
                     }
                 }
+
                 is AuthResult.UnknownError -> {
                     Toast.makeText(
                         context,
@@ -132,7 +160,15 @@ fun Profile(
 
 
     }
-    Column(//
+    fun refresh() = refreshScope.launch {
+        refreshing = true
+        userViewModel.loadCurrentUser()
+        itemCount += 5
+    }
+
+    val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
 
@@ -165,85 +201,103 @@ fun Profile(
             }
         )
         Spacer(modifier = Modifier.height(5.dp))
-        Column(
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .pullRefresh(pullRefreshState)
         ) {
-            Row(
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
-                Image(
-                    modifier = Modifier
-                        .size(65.dp)
-                        .clip(shape = CircleShape)
-                        .clickable {
-                            profilePhotoPickerLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
-                        },
-                    painter = profilePainter,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "Image"
-
-                )
-                if (profilePainterState is AsyncImagePainter.State.Loading) {
-                    CircularProgressIndicator()
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
+                item {
+                    Row(
                         modifier = Modifier
-                            .weight(weight = 3f, fill = false)
-                            .padding(start = 16.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "${currentUser?.firstName} ${currentUser?.lastName}",
-                            style = TextStyle(
-                                fontSize = 22.sp,
-                                fontFamily = fonts,
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                        Image(
+                            modifier = Modifier
+                                .size(65.dp)
+                                .clip(shape = CircleShape)
+                                .clickable {
+                                    profilePhotoPickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
+                            painter = profilePainter,
+                            contentScale = ContentScale.Crop,
+                            contentDescription = "Image"
+
                         )
+                        if (profilePainterState is AsyncImagePainter.State.Loading) {
+                            CircularProgressIndicator()
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(weight = 3f, fill = false)
+                                    .padding(start = 16.dp)
+                            ) {
+                                Text(
+                                    text = "${currentUser?.firstName} ${currentUser?.lastName}",
+                                    style = TextStyle(
+                                        fontSize = 22.sp,
+                                        fontFamily = fonts,
+                                        fontWeight = FontWeight.SemiBold
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
 //                        Spacer(modifier = Modifier.height(1.dp))
 
-                        Text(
-                            text = "@${currentUser?.username}",
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                color = Color.Gray,
-                                letterSpacing = (0.8).sp,
-                                fontFamily = fonts,
-                                fontWeight = FontWeight.Normal
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                                Text(
+                                    text = "@${currentUser?.username}",
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        color = Color.Gray,
+                                        letterSpacing = (0.8).sp,
+                                        fontFamily = fonts,
+                                        fontWeight = FontWeight.Normal
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    modifier = Modifier.size(24.dp),
+                                    imageVector = Icons.Outlined.Edit,
+                                    contentDescription = "Edit Details",
+                                    tint = MaterialTheme.colors.primary
+                                )
+                            }
+                        }
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            modifier = Modifier.size(24.dp),
-                            imageVector = Icons.Outlined.Edit,
-                            contentDescription = "Edit Details",
-                            tint = MaterialTheme.colors.primary
-                        )
-                    }
+
+
+                }
+
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Column {
+                    Spacer(modifier = Modifier.height(92.dp))
+                    ShowOptionsList()
+
                 }
             }
-            Spacer(modifier = Modifier.height(32.dp))
-            Column {
-                ShowOptionsList()
-
-            }
-
         }
+
 
     }
 
@@ -404,16 +458,3 @@ data class OptionsData(
 )
 
 
-fun getImagePathFromUri(context: Context, uri: Uri): String? {
-    val cursor = context.contentResolver.query(uri, null, null, null, null, null)
-    cursor?.let {
-        it.moveToFirst()
-        val columnIndex = it.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
-        if (columnIndex != -1) {
-            val imagePath = it.getString(columnIndex)
-            it.close()
-        }
-    }
-    cursor?.close()
-    return null
-}
