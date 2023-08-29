@@ -9,7 +9,7 @@ import com.example.meet_app.api.user.UserEntity
 @Dao
 interface UserDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUser(user: UserEntity)
 
     @Query("SELECT * FROM current_user LIMIT 1")

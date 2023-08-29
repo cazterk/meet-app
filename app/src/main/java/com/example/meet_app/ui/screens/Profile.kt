@@ -97,7 +97,7 @@ fun Profile(
     val icons = Icons.Outlined
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
-    var itemCount by remember { mutableIntStateOf(1) }
+    var itemCount by remember { mutableIntStateOf(1000) }
     val profilePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
 
@@ -204,12 +204,10 @@ fun Profile(
 
         Box(
             modifier = Modifier
-                .fillMaxSize()
                 .pullRefresh(pullRefreshState)
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
                     .padding(16.dp)
             ) {
                 item {
@@ -281,21 +279,14 @@ fun Profile(
                         }
                     }
 
-
                 }
 
             }
+        }
+        Spacer(modifier = Modifier.height(32.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Column {
-                    Spacer(modifier = Modifier.height(92.dp))
-                    ShowOptionsList()
-
-                }
-            }
+        Column {
+            ShowOptionsList()
         }
 
 
