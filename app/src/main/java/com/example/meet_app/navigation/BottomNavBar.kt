@@ -71,7 +71,7 @@ fun BottomNavBar(
     }
 
 
-    if (!shouldHideItem) {
+    if (!shouldHideItem)
         Scaffold(
             bottomBar = {
                 NavigationBar {
@@ -113,9 +113,7 @@ fun BottomNavBar(
         ) {
 
         }
-    } else {
-        Text(text = "No Bottom Bar")
-    }
+
 
 }
 

@@ -26,7 +26,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -211,10 +210,13 @@ fun Home(
 
 
             //  main options
-            Card() {
+
+            Card(
+
+            ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+//                        .fillMaxSize()
                         .padding(16.dp)
                 ) {
 
@@ -254,7 +256,6 @@ fun Home(
                         )
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-//                ConnectionsOptions()
                     Connections()
                     Spacer(modifier = Modifier.height(16.dp))
                     Column {
@@ -267,30 +268,55 @@ fun Home(
                         {
                             Text(text = "Message")
                         }
-                        Scaffold(
-                            floatingActionButton = {
-                                FloatingActionButton(onClick = {
+//                        Scaffold(
+//                            floatingActionButton = {
+//                                FloatingActionButton(onClick = {
+//                                    userViewModel.discoveringStatus(discoveringStatus)
+//                                    discoveringStatus = !discoveringStatus
+//
+//                                }) {
+//                                    if (discoveringStatus) {
+//                                        Icon(
+//                                            imageVector = Icons.Outlined.Search,
+//                                            contentDescription = "Search"
+//                                        )
+//                                    } else {
+//                                        Icon(
+//                                            imageVector = Icons.Outlined.Stop,
+//                                            contentDescription = "Stop"
+//                                        )
+//                                    }
+//                                }
+//                            }, content = {
+//
+//                            }
+//                        )
+                        Box(
+
+                        ) {
+                            FloatingActionButton(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd),
+                                onClick = {
                                     userViewModel.discoveringStatus(discoveringStatus)
                                     discoveringStatus = !discoveringStatus
 
                                 }) {
-                                    if (discoveringStatus) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Search,
-                                            contentDescription = "Search"
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Stop,
-                                            contentDescription = "Stop"
-                                        )
-                                    }
+                                if (discoveringStatus) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Search,
+                                        contentDescription = "Search"
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Stop,
+                                        contentDescription = "Stop"
+                                    )
                                 }
-                            }, content = {
-
                             }
-                        )
 
+
+                        }
                     }
 
                 }
@@ -300,8 +326,8 @@ fun Home(
         }
     }
 
-
 }
+
 
 @Composable
 fun Connections(userView: UserViewModel = hiltViewModel()) {
@@ -397,112 +423,5 @@ fun ConnectionItem(connection: UserEntity) {
 
     }
 }
-
-
-
-
-@Composable
-fun ConnectionsOptions(userViewModel: UserViewModel = hiltViewModel()) {
-//    val users by userViewModel.users.observeAsState(emptyList())
-    val discoveredUsers = userViewModel.discoveredUsers
-
-//    val listOfConnectionsData = listOf(
-////        UserResponse("", ""),
-//        connectionsData(
-//            "Martin James",
-//            painterResource(R.drawable.person2),
-//            "01/01/2022"
-//        ),
-//        connectionsData(
-//            " Smith Daniel",
-//            painterResource(R.drawable.person3),
-//            "01/01/2022"
-//        ),
-//        connectionsData(
-//            " Annie Daniel",
-//            painterResource(R.drawable.person4),
-//            "01/01/2021"
-//        )
-//    )
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//
-//        ) {
-//        LazyColumn {
-//            items(discoveredUsers.size) { user ->
-//                ConnectionsListItems(user as UserEntity) { endpointId ->
-//                    userViewModel.shareUser(endpointId)
-//
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//fun ConnectionsListItems(user: UserEntity, onShareClick: (String) -> Unit) {
-//    val date = "01/01/2021"
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(top = 10.dp)
-//    )
-//    {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth(),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-////            user.profileImage?.let {
-////                Image(
-////                    modifier = Modifier
-////                        .size(50.dp)
-////                        .clip(shape = CircleShape),
-////                    painter = it,
-////                    contentDescription = ""
-////
-////                )
-////            }
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Column(
-//                    modifier = Modifier
-//                        .weight(weight = 3f, fill = false)
-//                        .padding(start = 16.dp)
-//                ) {
-//                    Text(
-//                        text = " $user.firstName $user.lastName",
-//                        style = TextStyle(
-//                            fontSize = 16.sp,
-//                            fontFamily = fonts,
-//                            fontWeight = FontWeight.SemiBold,
-//
-//                            ),
-//                        maxLines = 1,
-//                        overflow = TextOverflow.Ellipsis
-//                    )
-//                    Text(
-//                        text = "Date Connected: $date",
-//                        style = TextStyle(
-//                            fontSize = 12.sp,
-//                            color = Color.Gray,
-//                            letterSpacing = (0.1).sp,
-//                            fontFamily = fonts,
-//                            fontWeight = FontWeight.Normal
-//                        ),
-//                        maxLines = 1,
-//                        overflow = TextOverflow.Ellipsis
-//                    )
-//
-//                }
-//            }
-//        }
-//    }
-
-}
-
 
 
