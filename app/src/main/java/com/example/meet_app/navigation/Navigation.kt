@@ -1,19 +1,46 @@
 package com.example.meet_app
 
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.meet_app.navigation.BottomNavBar
 import com.example.meet_app.navigation.Screen
-import com.example.meet_app.ui.screens.*
+import com.example.meet_app.ui.screens.Connections
+import com.example.meet_app.ui.screens.Home
+import com.example.meet_app.ui.screens.Login
+import com.example.meet_app.ui.screens.Messages
+import com.example.meet_app.ui.screens.Profile
+import com.example.meet_app.ui.screens.Register
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Navigation(
-    navController: NavHostController
+    navController: NavHostController,
 ) {
 
+
+    val routesToHideInBottomNavBar = listOf(
+        Screen.Register.route,
+        Screen.Login.route,
+        Screen.Profile.route
+    )
+//    val currentBackStackEntry: NavBackStackEntry? = navController.currentBackStackEntry
+
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = navController,
+                routesToHideNav = routesToHideInBottomNavBar
+            )
+        }
+    ) {
+
+    }
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -44,7 +71,13 @@ fun Navigation(
         }
 // home
         composable(
-            route = Screen.Home.route
+            route = Screen.Home.route,
+            arguments = listOf(
+                navArgument("home") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
         ) {
             Home(navController = navController)
 
@@ -52,7 +85,7 @@ fun Navigation(
         }
         // profile
         composable(
-            route = Screen.Profile.route + "/{name}",
+            route = Screen.Profile.route,
             arguments = listOf(
                 navArgument("name") {
                     type = NavType.StringType
@@ -65,7 +98,7 @@ fun Navigation(
         }
         // messages
         composable(
-            route = Screen.Messages.route + "/{name}",
+            route = Screen.Messages.route,
             arguments = listOf(
                 navArgument("name") {
                     type = NavType.StringType
@@ -76,6 +109,20 @@ fun Navigation(
             Messages(navController = navController, name = entry.arguments?.getString("name"))
         }
 
+        // connections
+        composable(
+            route = Screen.Connections.route,
+            arguments = listOf(
+                navArgument("name") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { entry ->
+            Connections(navController = navController, name = entry.arguments?.getString("name"))
+        }
+
 
     }
 }
+

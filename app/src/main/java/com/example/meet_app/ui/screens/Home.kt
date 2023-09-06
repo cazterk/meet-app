@@ -1,19 +1,44 @@
 package com.example.meet_app.ui.screens
 
+import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Switch
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Stop
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,17 +61,22 @@ import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
 import com.example.meet_app.ui.theme.getFonts
+import com.example.meet_app.util.PullRefresh
 import com.example.meet_app.viewmodel.AuthViewModel
 import com.example.meet_app.viewmodel.UserViewModel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun Home(
     navController: NavController,
     viewModel: AuthViewModel = hiltViewModel(),
-    userViewModel: UserViewModel = hiltViewModel()
+    userViewModel: UserViewModel = hiltViewModel(),
 
-) {
+    ) {
     var text by remember {
         mutableStateOf("")
     }
@@ -55,10 +85,13 @@ fun Home(
     var name = "${currentUser?.firstName} ${currentUser?.lastName}"
     var isVisibilityEnabled by remember { mutableStateOf(false) }
     var discoveringStatus by remember { mutableStateOf(true) }
-
     val context = LocalContext.current
-    LaunchedEffect(viewModel, userViewModel, context) {
+    var refreshing by remember { mutableStateOf(false) }
+
+
+    LaunchedEffect(viewModel, userViewModel, context, refreshing) {
         userViewModel.loadCurrentUser()
+        Log.d(TAG, "refreshing state: $refreshing")
         viewModel.authResults.collect { result ->
             when (result) {
                 is AuthResult.Authorized -> {
@@ -70,6 +103,7 @@ fun Home(
 
 
                 }
+
                 is AuthResult.Unauthorized -> {
                     navController.navigate(Screen.Login.withArgs("login")) {
                         popUpTo(navController.graph.id) {
@@ -78,6 +112,7 @@ fun Home(
                     }
 
                 }
+
                 is AuthResult.UnknownError -> {
                     // Handle the unknown error case here
                     // You can show an error message, log the error, or take appropriate action
@@ -86,159 +121,175 @@ fun Home(
         }
 
     }
-
-    Column(
+    PullRefresh(
+        refreshing = refreshing,
+        onRefresh = {
+            refreshing = true
+            GlobalScope.launch {
+                delay(1500)
+                refreshing = false
+            }
+        },
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Transparent)
-
     ) {
-        Spacer(modifier = Modifier.height(30.dp))
-        Box(
+
+
+        Column(
             modifier = Modifier
-                .padding(16.dp)
-                .height(100.dp),
+                .fillMaxSize()
+                .background(color = Color.Transparent)
+
+
+        ) {
+            Spacer(modifier = Modifier.height(30.dp))
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .height(100.dp),
 
 //            shape = RoundedCornerShape(10.dp)
 
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-
-
-                verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Image(
+                Row(
                     modifier = Modifier
-                        .size(65.dp)
-                        .clip(shape = CircleShape)
-                        .clickable {
-                            navController.navigate(Screen.Profile.withArgs("profile"))
-                        },
-                    painter = (if (currentUser?.profileImage != null) {
-                        rememberAsyncImagePainter(currentUser?.profileImage)
-                    } else {
-                        painterResource(R.drawable.profile_image_placeholder)
-                    }),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "Image"
-                )
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+
+
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Image(
+                        modifier = Modifier
+                            .size(65.dp)
+                            .clip(shape = CircleShape)
+                            .clickable {
+                                navController.navigate(Screen.Profile.route)
+                            },
+                        painter = (if (currentUser?.profileImage != null) {
+                            rememberAsyncImagePainter(currentUser?.profileImage)
+                        } else {
+                            painterResource(R.drawable.profile_image_placeholder)
+                        }),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "Image"
+                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(weight = 3f, fill = false)
+                            .padding(start = 16.dp)
+                    ) {
+                        Text(
+                            text = "Welcome $name!",
+                            style = TextStyle(
+                                fontSize = 20.sp,
+                                fontFamily = fonts,
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "Get started with connections",
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                letterSpacing = (0.1).sp,
+                                fontFamily = fonts,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                    }
+
+
+                }
+            }
+
+
+            //  main options
+            Card() {
                 Column(
                     modifier = Modifier
-                        .weight(weight = 3f, fill = false)
-                        .padding(start = 16.dp)
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = "Welcome $name!",
-                        style = TextStyle(
-                            fontSize = 20.sp,
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Visibility",
+                            fontSize = 13.sp,
                             fontFamily = fonts,
                             fontWeight = FontWeight.SemiBold
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = "Get started with connections",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.Gray,
-                            letterSpacing = (0.1).sp,
-                            fontFamily = fonts,
-                            fontWeight = FontWeight.Normal
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                }
-
-
-            }
-        }
-
-
-        //  main options
-        Card() {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Visibility",
-                        fontSize = 13.sp,
-                        fontFamily = fonts,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Switch(
-                        modifier = Modifier.scale(scale = 1.2f),
-
-                        checked = isVisibilityEnabled,
-                        onCheckedChange = { isChecked ->
-                            isVisibilityEnabled = isChecked
-                            if (isChecked) {
-                                userViewModel.startAdvertising()
-                            } else {
-                                userViewModel.stopAdvertising()
-                            }
-                        },
-
                         )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Near By People",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontFamily = fonts,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-//                ConnectionsOptions()
-                Connections()
-                Spacer(modifier = Modifier.height(16.dp))
-                Column {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        modifier = Modifier.width(150.dp),
-                        onClick = {
-                            navController.navigate(Screen.Messages.withArgs(text))
-                        })
-                    {
-                        Text(text = "Message")
-                    }
-                    Scaffold(
-                        floatingActionButton = {
-                            FloatingActionButton(onClick = {
-                                userViewModel.discoveringStatus(discoveringStatus)
-                                discoveringStatus = !discoveringStatus
+                        Switch(
+                            modifier = Modifier.scale(scale = 1.2f),
 
-                            }) {
-                                if (discoveringStatus) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Search,
-                                        contentDescription = "Search"
-                                    )
+                            checked = isVisibilityEnabled,
+                            onCheckedChange = { isChecked ->
+                                isVisibilityEnabled = isChecked
+                                if (isChecked) {
+                                    userViewModel.startAdvertising()
                                 } else {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Stop,
-                                        contentDescription = "Stop"
-                                    )
+                                    userViewModel.stopAdvertising()
                                 }
-                            }
+                            },
+
+                            )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Near By People",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+//                ConnectionsOptions()
+                    Connections()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Column {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            modifier = Modifier.width(150.dp),
+                            onClick = {
+                                navController.navigate(Screen.Messages.route)
+                            })
+                        {
+                            Text(text = "Message")
                         }
-                    ) {
+                        Scaffold(
+                            floatingActionButton = {
+                                FloatingActionButton(onClick = {
+                                    userViewModel.discoveringStatus(discoveringStatus)
+                                    discoveringStatus = !discoveringStatus
+
+                                }) {
+                                    if (discoveringStatus) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Search,
+                                            contentDescription = "Search"
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Stop,
+                                            contentDescription = "Stop"
+                                        )
+                                    }
+                                }
+                            }, content = {
+
+                            }
+                        )
 
                     }
 
@@ -247,7 +298,6 @@ fun Home(
             }
 
         }
-
     }
 
 
@@ -348,9 +398,7 @@ fun ConnectionItem(connection: UserEntity) {
     }
 }
 
-fun Image(modifier: Modifier, painter: String, contentDescription: String) {
 
-}
 
 
 @Composable

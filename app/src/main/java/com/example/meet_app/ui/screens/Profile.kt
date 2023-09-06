@@ -11,6 +11,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,13 +40,14 @@ import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -77,8 +80,11 @@ import com.example.meet_app.viewmodel.AuthViewModel
 import com.example.meet_app.viewmodel.ImagesViewModel
 import com.example.meet_app.viewmodel.UserViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 private val optionsList: ArrayList<OptionsData> = ArrayList()
 
@@ -97,7 +103,7 @@ fun Profile(
     val icons = Icons.Outlined
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
-    var itemCount by remember { mutableIntStateOf(1000) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
     val profilePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
 
@@ -162,54 +168,69 @@ fun Profile(
     }
     fun refresh() = refreshScope.launch {
         refreshing = true
+        delay(1500)
         userViewModel.loadCurrentUser()
-        itemCount += 5
+        refreshing = false
     }
 
     val pullRefreshState = rememberPullRefreshState(refreshing, ::refresh)
-
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize()
 
-    ) {
-
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Profile",
-                    style = TextStyle(
-                        fontFamily = fonts,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-            },
-            backgroundColor = MaterialTheme.colors.background,
-            elevation = 4.dp,
-            navigationIcon = {
-                IconButton(
-                    onClick = { navController.navigateUp() }
-
-                ) {
-                    Icon(
-                        Icons.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
+            .pointerInput(Unit) {
+                detectVerticalDragGestures { _, dragAmount ->
+                    offsetY += dragAmount
+                    if (offsetY < 50f) {
+                        refreshing = true
+                        GlobalScope.launch {
+                            delay(1500)
+                            refreshing = false
+                        }
+                    }
                 }
-
-
             }
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-
-        Box(
+            .pullRefresh(pullRefreshState)
+    ) {
+        Column(
             modifier = Modifier
-                .pullRefresh(pullRefreshState)
+                .fillMaxSize()
+
+
         ) {
+
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Profile",
+                        style = TextStyle(
+                            fontFamily = fonts,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                },
+                backgroundColor = MaterialTheme.colors.background,
+                elevation = 4.dp,
+                navigationIcon = {
+                    IconButton(
+                        onClick = { navController.navigateUp() }
+
+                    ) {
+                        Icon(
+                            Icons.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+
+
+                }
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+
             LazyColumn(
                 modifier = Modifier
                     .padding(16.dp)
             ) {
+
                 item {
                     Row(
                         modifier = Modifier
@@ -280,16 +301,20 @@ fun Profile(
                     }
 
                 }
-
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Column {
+                ShowOptionsList()
+            }
+
         }
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Column {
-            ShowOptionsList()
-        }
-
-
+        PullRefreshIndicator(
+            refreshing,
+            pullRefreshState,
+            Modifier.align(Alignment.TopCenter)
+        )
     }
 
 
@@ -399,7 +424,6 @@ private fun OptionsItemStyle(
 }
 
 
-//@Composable
 private fun profileOptions() {
     val icons = Icons.Outlined
 //    val viewModel: AuthViewModel = hiltViewModel()
@@ -439,6 +463,14 @@ private fun profileOptions() {
 
         )
     )
+}
+
+@Composable
+fun PullRefreshingIndicator(
+    refreshing: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier
+) {
 }
 
 data class OptionsData(
