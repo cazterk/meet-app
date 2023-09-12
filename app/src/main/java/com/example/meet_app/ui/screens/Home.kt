@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,13 +23,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
 import androidx.compose.material.Card
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -128,15 +122,11 @@ fun Home(
                 delay(1500)
                 refreshing = false
             }
-        },
-        modifier = Modifier
-            .fillMaxSize()
+        }
     ) {
-
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .background(color = Color.Transparent)
 
 
@@ -146,14 +136,10 @@ fun Home(
                 modifier = Modifier
                     .padding(16.dp)
                     .height(100.dp),
-
-//            shape = RoundedCornerShape(10.dp)
-
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
+                        .fillMaxSize(),
 
 
                     verticalAlignment = Alignment.CenterVertically
@@ -216,7 +202,6 @@ fun Home(
             ) {
                 Column(
                     modifier = Modifier
-//                        .fillMaxSize()
                         .padding(16.dp)
                 ) {
 
@@ -268,55 +253,7 @@ fun Home(
                         {
                             Text(text = "Message")
                         }
-//                        Scaffold(
-//                            floatingActionButton = {
-//                                FloatingActionButton(onClick = {
-//                                    userViewModel.discoveringStatus(discoveringStatus)
-//                                    discoveringStatus = !discoveringStatus
-//
-//                                }) {
-//                                    if (discoveringStatus) {
-//                                        Icon(
-//                                            imageVector = Icons.Outlined.Search,
-//                                            contentDescription = "Search"
-//                                        )
-//                                    } else {
-//                                        Icon(
-//                                            imageVector = Icons.Outlined.Stop,
-//                                            contentDescription = "Stop"
-//                                        )
-//                                    }
-//                                }
-//                            }, content = {
-//
-//                            }
-//                        )
-                        Box(
 
-                        ) {
-                            FloatingActionButton(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd),
-                                onClick = {
-                                    userViewModel.discoveringStatus(discoveringStatus)
-                                    discoveringStatus = !discoveringStatus
-
-                                }) {
-                                if (discoveringStatus) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Search,
-                                        contentDescription = "Search"
-                                    )
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Stop,
-                                        contentDescription = "Stop"
-                                    )
-                                }
-                            }
-
-
-                        }
                     }
 
                 }
