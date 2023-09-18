@@ -1,7 +1,14 @@
+package com.example.meet_app.viewmodel
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.google.android.gms.nearby.Nearby
-import com.google.android.gms.nearby.connection.*
+import com.google.android.gms.nearby.connection.AdvertisingOptions
+import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback
+import com.google.android.gms.nearby.connection.DiscoveryOptions
+import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback
+import com.google.android.gms.nearby.connection.Payload
+import com.google.android.gms.nearby.connection.Strategy
 
 class NearbyConnectionsViewModel(application: Application) : AndroidViewModel(application) {
 

@@ -2,6 +2,9 @@ package com.example.meet_app.viewmodel
 
 import android.app.Application
 import android.content.ContentValues.TAG
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
@@ -12,18 +15,30 @@ import com.example.meet_app.api.user.UserEntity
 import com.example.meet_app.api.user.UserRepository
 import com.example.meet_app.util.Constants.SERVICE_ID
 import com.google.android.gms.nearby.Nearby
-import com.google.android.gms.nearby.connection.*
+import com.google.android.gms.nearby.connection.AdvertisingOptions
+import com.google.android.gms.nearby.connection.ConnectionInfo
+import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback
+import com.google.android.gms.nearby.connection.ConnectionResolution
+import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo
+import com.google.android.gms.nearby.connection.DiscoveryOptions
+import com.google.android.gms.nearby.connection.EndpointDiscoveryCallback
+import com.google.android.gms.nearby.connection.Payload
+import com.google.android.gms.nearby.connection.PayloadCallback
+import com.google.android.gms.nearby.connection.PayloadTransferUpdate
+import com.google.android.gms.nearby.connection.Strategy
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    application: Application
+    application: Application,
 
-) : ViewModel() {
+    ) : ViewModel() {
     private val _currentUser = MutableLiveData<UserEntity>()
     val currentUser: LiveData<UserEntity> = _currentUser
 
@@ -46,9 +61,9 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun updateProfileImage(userId: String, ProfileImage: String) {
+    fun updateProfileImage(userId: String, profileImage: String) {
         viewModelScope.launch {
-            userRepository.updateProfileImage(userId, ProfileImage)
+            userRepository.updateProfileImage(userId, profileImage)
         }
     }
 
@@ -185,10 +200,46 @@ class UserViewModel @Inject constructor(
             val currentUser = userRepository.getCurrentUser()
             val currentUserJson = Gson().toJson(currentUser)
 
+            val profilePictureBitmap: Bitmap? = currentUser.profileImage?.let {
+                loadUserProfilePicture(
+                    it
+                )
+            }
+
+            val profilePictureBytes = profilePictureBitmap?.let { bitmapToByteArray(it) }
+
+            val payloadData = JSONObject()
+            payloadData.put("user_data", JSONObject(currentUserJson))
+            payloadData.put(
+                "profile_picture",
+                Base64.encodeToString(profilePictureBytes, Base64.DEFAULT)
+            )
+
+            val payloadJson = payloadData.toString()
+
             nearByShareClient.sendPayload(
                 endpointId,
-                Payload.fromBytes(currentUserJson.toByteArray())
+                Payload.fromBytes(payloadJson.toByteArray())
             )
         }
     }
+}
+
+private fun loadUserProfilePicture(profilePictureFilePath: String): Bitmap? {
+    try {
+        val options = BitmapFactory.Options()
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888
+        return BitmapFactory.decodeFile(profilePictureFilePath, options)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        //
+        return null
+    }
+}
+
+private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+    val stream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+    return stream.toByteArray()
+
 }

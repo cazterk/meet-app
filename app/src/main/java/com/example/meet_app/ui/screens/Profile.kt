@@ -95,12 +95,11 @@ fun Profile(
     name: String?,
     viewModel: AuthViewModel = hiltViewModel(),
     userViewModel: UserViewModel = hiltViewModel(),
-    imagesViewModel: ImagesViewModel = hiltViewModel()
+    imagesViewModel: ImagesViewModel = hiltViewModel(),
 ) {
     val fonts = getFonts()
     val context = LocalContext.current
     val currentUser by userViewModel.currentUser.observeAsState()
-    val icons = Icons.Outlined
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
     var offsetY by remember { mutableFloatStateOf(0f) }
@@ -352,7 +351,7 @@ fun ShowOptionsList(
 private fun OptionsItemStyle(
     item: OptionsData,
     context: Context,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
 ) {
     Row(
         modifier = Modifier
@@ -465,19 +464,12 @@ private fun profileOptions() {
     )
 }
 
-@Composable
-fun PullRefreshingIndicator(
-    refreshing: Boolean,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-}
 
 data class OptionsData(
     val icon: ImageVector,
     val title: String,
     val description: String,
-    val navTo: String? = null
+    val navTo: String? = null,
 )
 
 

@@ -1,6 +1,6 @@
-package com.example.meet_app
+package com.example.meet_app.navigation
 
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -8,8 +8,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.meet_app.navigation.BottomNavBar
-import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.screens.Connections
 import com.example.meet_app.ui.screens.Home
 import com.example.meet_app.ui.screens.Login
@@ -17,7 +15,7 @@ import com.example.meet_app.ui.screens.Messages
 import com.example.meet_app.ui.screens.Profile
 import com.example.meet_app.ui.screens.Register
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun Navigation(
     navController: NavHostController,
@@ -38,9 +36,7 @@ fun Navigation(
                 routesToHideNav = routesToHideInBottomNavBar
             )
         }
-    ) {
-
-    }
+    ) { it: PaddingValues -> it }
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
