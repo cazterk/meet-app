@@ -27,6 +27,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
 import com.google.gson.Gson
+import com.google.gson.JsonParseException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -168,17 +169,36 @@ class UserViewModel @Inject constructor(
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
             if (payload.type == Payload.Type.BYTES) {
+
                 val userJson = payload.asBytes()?.toString(Charsets.UTF_8)
                 userJson?.let { jsonString ->
-                    val receivedUser = Gson().fromJson(jsonString, UserEntity::class.java)
 
-                    // Check if the received user already exists in the list based on their ID
-                    val existingUser = _discoveredUsers.find { it.id == receivedUser.id }
-                    if (existingUser == null) {
-                        _discoveredUsers.add(receivedUser)
+                    try {
+                        val payloadData = JSONObject(jsonString)
+                        val userDataJon = payloadData.getJSONObject("user_data")
+                        val receivedUser =
+                            Gson().fromJson(userDataJon.toString(), UserEntity::class.java)
+
+                        // Check if the received user already exists in the list based on their ID
+                        when (_discoveredUsers.find { it.id == receivedUser.id }) {
+                            null -> {
+                                _discoveredUsers.add(receivedUser)
+                            }
+
+                            else -> {}
+                        }
+
+                        val profilePictureBase64 = payloadData.getString("profile_picture")
+
+                    } catch (e: JsonParseException) {
+                        Log.e(TAG, "Error parsing received JSON response: ${e.message}")
                     }
                 }
+
+            } else {
+                Log.e(TAG, "Received payload of unexpected type:${payload.type}")
             }
+
 
             if (!payloadSent) {
                 sendPayloadToConnectedDevice(endpointId)
@@ -221,19 +241,22 @@ class UserViewModel @Inject constructor(
                 endpointId,
                 Payload.fromBytes(payloadJson.toByteArray())
             )
+
+            Log.d(TAG, "currentUserJson: $payloadJson")
+            Log.d(TAG, "profilePicture: ${profilePictureBytes?.size} bytes")
         }
     }
 }
 
 private fun loadUserProfilePicture(profilePictureFilePath: String): Bitmap? {
-    try {
+    return try {
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.ARGB_8888
-        return BitmapFactory.decodeFile(profilePictureFilePath, options)
+        BitmapFactory.decodeFile(profilePictureFilePath, options)
     } catch (e: Exception) {
         e.printStackTrace()
         //
-        return null
+        null
     }
 }
 

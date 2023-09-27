@@ -203,6 +203,7 @@ fun Home(
                 Column(
                     modifier = Modifier
                         .padding(16.dp)
+
                 ) {
 
                     Row(
