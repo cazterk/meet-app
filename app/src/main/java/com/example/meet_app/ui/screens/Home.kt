@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
-import androidx.compose.material.Card
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.meet_app.R
-import com.example.meet_app.api.user.UserEntity
+import com.example.meet_app.api.user.ConnectionEntity
 import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
@@ -197,7 +196,7 @@ fun Home(
 
             //  main options
 
-            Card(
+            Box(
 
             ) {
                 Column(
@@ -292,7 +291,7 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun ConnectionItem(connection: UserEntity) {
+fun ConnectionItem(connection: ConnectionEntity) {
     val date = "01/01/2021"
     Column(
         modifier = Modifier
@@ -304,12 +303,12 @@ fun ConnectionItem(connection: UserEntity) {
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            connection.profileImage?.let {
+            connection.connectionProfileImage?.let {
                 Image(
                     modifier = Modifier
                         .size(65.dp)
                         .clip(shape = CircleShape),
-                    painter = (if (connection?.profileImage != null) {
+                    painter = (if (connection?.connectionProfileImage != null) {
                         rememberAsyncImagePainter(it)
                     } else {
                         painterResource(R.drawable.profile_image_placeholder)
