@@ -3,6 +3,8 @@ package com.example.meet_app.api.user
 import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import com.google.gson.Gson
 
 open class User(
     open val username: String,
@@ -30,3 +32,17 @@ data class ConnectionEntity(
 
     ) : User(username, firstName, lastName, id)
 
+
+class UserConverter{
+    private val  gson = Gson()
+
+    @TypeConverter
+    fun userEntityToJson(userEntity: UserEntity): String{
+        return gson.toJson(userEntity)
+    }
+
+    @TypeConverter
+    fun jsonToUserEntity(json:String): UserEntity{
+        return gson.fromJson(json, UserEntity::class.java)
+    }
+}

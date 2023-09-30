@@ -10,6 +10,7 @@ import com.example.meet_app.auth.AuthApi
 import com.example.meet_app.auth.AuthRepository
 import com.example.meet_app.auth.AuthRepositoryImpl
 import com.example.meet_app.roomDb.AppDatabase
+import com.example.meet_app.roomDb.MIGRATION_1_2
 import com.example.meet_app.roomDb.dao.UserDao
 import dagger.Module
 import dagger.Provides
@@ -43,8 +44,7 @@ object AppModule {
             .build()
 
         return Retrofit.Builder()
-//            .baseUrl("http://192.168.153.117:8080/")
-            .baseUrl("http://192.168.61.113:8080/")
+            .baseUrl("http://192.168.68.181:8080/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -60,7 +60,9 @@ object AppModule {
             application,
             AppDatabase::class.java,
             "meetapp_db"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     // auth related methods
