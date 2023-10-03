@@ -11,12 +11,11 @@ val MIGRATION_1_2 = object : Migration(1,2) {
                 "firstName TEXT NOT NULL, " +
                 "lastName TEXT NOT NULL, " +
                 "profileImage TEXT, " +
-                "id TEXT NOT NULL PRIMARY KEY, " +
-                "newField TEXT DEFAULT 'defaultValue' NOT NULL)")
+                "id TEXT NOT NULL PRIMARY KEY)")
 
         // Copy the data from the old table to the temporary table
-        database.execSQL("INSERT INTO temp_current_user (username, firstName, lastName, profileImage, id, newField)" +
-                "SELECT username, firstName, lastName, profileImage, id, '' FROM current_user")
+        database.execSQL("INSERT INTO temp_current_user (username, firstName, lastName, profileImage, id)" +
+                "SELECT username, firstName, lastName, profileImage, id '' FROM current_user")
 
         // Drop the old table
         database.execSQL("DROP TABLE current_user")

@@ -10,7 +10,6 @@ import com.example.meet_app.auth.AuthApi
 import com.example.meet_app.auth.AuthRepository
 import com.example.meet_app.auth.AuthRepositoryImpl
 import com.example.meet_app.roomDb.AppDatabase
-import com.example.meet_app.roomDb.MIGRATION_1_2
 import com.example.meet_app.roomDb.dao.UserDao
 import dagger.Module
 import dagger.Provides
@@ -61,7 +60,7 @@ object AppModule {
             AppDatabase::class.java,
             "meetapp_db"
         )
-            .addMigrations(MIGRATION_1_2)
+            // .addMigrations(MIGRATION_1_2) // uncomment when running migrations
             .build()
     }
 
