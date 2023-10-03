@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.meet_app.navigation.Screen
 
 @Composable
 fun Connections (navController: NavController, name: String?){
@@ -28,7 +29,7 @@ fun Connections (navController: NavController, name: String?){
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                navController.navigate("/home")
+                navController.navigate(Screen.Home.route)
             }
         ) {
             Text("Go to Home")
