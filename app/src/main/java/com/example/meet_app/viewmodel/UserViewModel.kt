@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.meet_app.api.user.ConnectionEntity
 import com.example.meet_app.api.user.UserEntity
 import com.example.meet_app.api.user.UserRepository
 import com.example.meet_app.util.Constants.SERVICE_ID
@@ -44,8 +43,8 @@ class UserViewModel @Inject constructor(
     private val _currentUser = MutableLiveData<UserEntity>()
     val currentUser: LiveData<UserEntity> = _currentUser
 
-    private val _discoveredUsers = mutableStateListOf<ConnectionEntity>()
-    val discoveredUsers: List<ConnectionEntity> get() = _discoveredUsers
+    private val _discoveredUsers = mutableStateListOf<UserEntity>()
+    val discoveredUsers: List<UserEntity> get() = _discoveredUsers
 
     private val nearByShareClient = Nearby.getConnectionsClient(application)
 
@@ -178,8 +177,10 @@ class UserViewModel @Inject constructor(
                         val payloadData = JSONObject(jsonString)
                         val userDataJon = payloadData.getJSONObject("user_data")
                         val receivedUser =
-                            Gson().fromJson(userDataJon.toString(), ConnectionEntity::class.java)
+                            Gson().fromJson(userDataJon.toString(), UserEntity::class.java)
 
+                        val profilePictureBase64 = payloadData.getString("profile_picture")
+                        receivedUser.profileImage = profilePictureBase64
                         // Check if the received user already exists in the list based on their ID
                         when (_discoveredUsers.find { it.id == receivedUser.id }) {
                             null -> {
@@ -189,7 +190,6 @@ class UserViewModel @Inject constructor(
                             else -> {}
                         }
 
-                        val profilePictureBase64 = payloadData.getString("profile_picture")
 
                     } catch (e: JsonParseException) {
                         Log.e(TAG, "Error parsing received JSON response: ${e.message}")

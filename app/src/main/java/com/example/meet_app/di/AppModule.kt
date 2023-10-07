@@ -60,7 +60,7 @@ object AppModule {
             AppDatabase::class.java,
             "meetapp_db"
         )
-            // .addMigrations(MIGRATION_1_2) // uncomment when running migrations
+//             .addMigrations(MIGRATION_1_2) // uncomment when running migrations
             .build()
     }
 

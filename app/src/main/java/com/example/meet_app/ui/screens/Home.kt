@@ -48,7 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.meet_app.R
-import com.example.meet_app.api.user.ConnectionEntity
+import com.example.meet_app.api.user.UserEntity
 import com.example.meet_app.auth.AuthResult
 import com.example.meet_app.navigation.Screen
 import com.example.meet_app.ui.theme.fonts
@@ -291,7 +291,7 @@ fun Connections(userView: UserViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun ConnectionItem(connection: ConnectionEntity) {
+fun ConnectionItem(connection: UserEntity) {
     val date = "01/01/2021"
     Column(
         modifier = Modifier
@@ -303,12 +303,12 @@ fun ConnectionItem(connection: ConnectionEntity) {
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            connection.connectionProfileImage?.let {
+            connection.profileImage?.let {
                 Image(
                     modifier = Modifier
                         .size(65.dp)
                         .clip(shape = CircleShape),
-                    painter = (if (connection?.connectionProfileImage != null) {
+                    painter = (if (connection?.profileImage != null) {
                         rememberAsyncImagePainter(it)
                     } else {
                         painterResource(R.drawable.profile_image_placeholder)

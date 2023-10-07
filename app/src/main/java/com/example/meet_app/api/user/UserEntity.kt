@@ -18,7 +18,7 @@ data class UserEntity(
     override val username: String,
     override val firstName: String,
     override val lastName: String,
-    val profileImage: String?,
+    var profileImage: String?,
     @PrimaryKey(autoGenerate = false)
     override val id: String
 ) : User(username, firstName, lastName, id)
