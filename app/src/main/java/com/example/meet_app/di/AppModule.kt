@@ -1,6 +1,7 @@
 package com.example.meet_app.di
 
 import android.app.Application
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
@@ -107,6 +108,11 @@ object AppModule {
         return appDatabase.userDao()
     }
 
+    @Provides
+    @Singleton
+    fun provideContext(application: Application):Context{
+        return application.applicationContext
+    }
 
 }
 

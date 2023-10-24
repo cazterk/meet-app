@@ -15,13 +15,13 @@ open class User(
 
 @Entity(tableName = "current_user")
 data class UserEntity(
-    override val username: String,
-    override val firstName: String,
-    override val lastName: String,
+    val username: String,
+    val firstName: String,
+    val lastName: String,
     var profileImage: String?,
     @PrimaryKey(autoGenerate = false)
-    override val id: String
-) : User(username, firstName, lastName, id)
+    val id: String
+)
 
 data class ConnectionEntity(
     override val username: String,
@@ -33,16 +33,16 @@ data class ConnectionEntity(
     ) : User(username, firstName, lastName, id)
 
 
-class UserConverter{
-    private val  gson = Gson()
+class UserConverter {
+    private val gson = Gson()
 
     @TypeConverter
-    fun userEntityToJson(userEntity: UserEntity): String{
+    fun userEntityToJson(userEntity: UserEntity): String {
         return gson.toJson(userEntity)
     }
 
     @TypeConverter
-    fun jsonToUserEntity(json:String): UserEntity{
+    fun jsonToUserEntity(json: String): UserEntity {
         return gson.fromJson(json, UserEntity::class.java)
     }
 }

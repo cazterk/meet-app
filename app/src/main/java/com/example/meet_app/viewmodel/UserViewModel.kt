@@ -2,6 +2,7 @@ package com.example.meet_app.viewmodel
 
 import android.app.Application
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -32,11 +33,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val context: Context,
     application: Application,
 
     ) : ViewModel() {
@@ -50,6 +55,7 @@ class UserViewModel @Inject constructor(
 
 
     private var payloadSent = false
+
 
     fun loadCurrentUser() {
         viewModelScope.launch {
@@ -179,8 +185,14 @@ class UserViewModel @Inject constructor(
                         val receivedUser =
                             Gson().fromJson(userDataJon.toString(), UserEntity::class.java)
 
-                        val profilePictureBase64 = payloadData.getString("profile_picture")
-                        receivedUser.profileImage = profilePictureBase64
+                        var profilePictureBase64 = payloadData.getString("profile_picture")
+                        val profilePictureBytes =
+                            Base64.decode(profilePictureBase64, Base64.DEFAULT)
+
+                        val updatedProfilePictureUrl =
+                            saveProfilePictureToStorage(receivedUser.id, profilePictureBytes)
+
+                        receivedUser.profileImage = updatedProfilePictureUrl.toString()
                         // Check if the received user already exists in the list based on their ID
                         when (_discoveredUsers.find { it.id == receivedUser.id }) {
                             null -> {
@@ -232,7 +244,7 @@ class UserViewModel @Inject constructor(
             val payloadData = JSONObject()
             payloadData.put("user_data", JSONObject(currentUserJson))
             payloadData.put(
-                "connectionProfileImage",
+                "profile_picture",
                 Base64.encodeToString(profilePictureBytes, Base64.DEFAULT)
             )
 
@@ -247,23 +259,41 @@ class UserViewModel @Inject constructor(
             Log.d(TAG, "profilePicture: ${profilePictureBytes?.size} bytes")
         }
     }
-}
 
-private fun loadUserProfilePicture(profilePictureFilePath: String): Bitmap? {
-    return try {
-        val options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888
-        BitmapFactory.decodeFile(profilePictureFilePath, options)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        //
-        null
+
+    private fun loadUserProfilePicture(profilePictureFilePath: String): Bitmap? {
+        return try {
+            val options = BitmapFactory.Options()
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888
+            BitmapFactory.decodeFile(profilePictureFilePath, options)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            //
+            null
+        }
     }
-}
 
-private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
-    val stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-    return stream.toByteArray()
+    private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
 
+    }
+
+    private fun saveProfilePictureToStorage(
+        userId: String,
+        profileImageBytes: ByteArray
+    ) {
+        try {
+            val fileName = "profile_profile_$userId.jpg"
+            val file = File(context.filesDir, fileName)
+            FileOutputStream(file).use { fileOutputStream ->
+                fileOutputStream.write(profileImageBytes)
+                Log.d(TAG, "Profile pictures saved to: ${file.absolutePath}")
+
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Error saving profile picture:${e.message}")
+        }
+    }
 }
