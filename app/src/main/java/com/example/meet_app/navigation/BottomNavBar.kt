@@ -4,9 +4,9 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BadgedBox
-import androidx.compose.material.FloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubble
@@ -17,6 +17,8 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PeopleOutline
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationBar
@@ -96,12 +98,12 @@ fun BottomNavBar(
                     ) {
                         if (discoveringStatus) {
                             Icon(
-                                imageVector = Icons.Outlined.Search,
+                                imageVector = Icons.Rounded.Search,
                                 contentDescription = "Search"
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Outlined.Stop,
+                                imageVector = Icons.Rounded.Stop,
                                 contentDescription = "Stop"
                             )
                         }

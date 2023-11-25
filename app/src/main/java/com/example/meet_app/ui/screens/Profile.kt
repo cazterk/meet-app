@@ -29,8 +29,6 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -43,6 +41,9 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -88,7 +89,7 @@ import kotlinx.coroutines.withContext
 
 private val optionsList: ArrayList<OptionsData> = ArrayList()
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(
     navController: NavController,
@@ -207,8 +208,8 @@ fun Profile(
                         )
                     )
                 },
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = 4.dp,
+                backgroundColor = MaterialTheme.colorScheme.background,
+                elevation  = 4.dp,
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.navigateUp() }
@@ -293,7 +294,7 @@ fun Profile(
                                     modifier = Modifier.size(24.dp),
                                     imageVector = Icons.Outlined.Edit,
                                     contentDescription = "Edit Details",
-                                    tint = MaterialTheme.colors.primary
+                                    tint = MaterialTheme.colorScheme .primary
                                 )
                             }
                         }
@@ -373,7 +374,7 @@ private fun OptionsItemStyle(
                 .size(32.dp),
             imageVector = item.icon,
             contentDescription = item.title,
-            tint = MaterialTheme.colors.primary
+            tint = MaterialTheme.colorScheme .primary
         )
 
         Row(

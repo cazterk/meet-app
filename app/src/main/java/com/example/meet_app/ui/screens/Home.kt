@@ -21,9 +21,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -217,7 +221,7 @@ fun Home(
                             fontWeight = FontWeight.SemiBold
                         )
                         Switch(
-                            modifier = Modifier.scale(scale = 1.2f),
+                            modifier = Modifier.scale(scale = 1f),
 
                             checked = isVisibilityEnabled,
                             onCheckedChange = { isChecked ->
@@ -228,8 +232,14 @@ fun Home(
                                     userViewModel.stopAdvertising()
                                 }
                             },
-
-                            )
+                            thumbContent = {
+                                Icon(
+                                    imageVector = if (isVisibilityEnabled) Icons.Rounded.Check else Icons.Rounded.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
