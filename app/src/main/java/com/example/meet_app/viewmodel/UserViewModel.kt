@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
@@ -192,7 +193,10 @@ class UserViewModel @Inject constructor(
                         val updatedProfilePictureUrl =
                             saveProfilePictureToStorage(receivedUser.id, profilePictureBytes)
 
-                        receivedUser.profileImage = updatedProfilePictureUrl.toString()
+                        updatedProfilePictureUrl?.let {
+                            receivedUser.profileImage = it.toString()
+                        }
+
                         // Check if the received user already exists in the list based on their ID
                         when (_discoveredUsers.find { it.id == receivedUser.id }) {
                             null -> {
@@ -283,7 +287,7 @@ class UserViewModel @Inject constructor(
     private fun saveProfilePictureToStorage(
         userId: String,
         profileImageBytes: ByteArray
-    ) {
+    ): String? {
         try {
             val fileName = "profile_profile_$userId.jpg"
             val file = File(context.filesDir, fileName)
@@ -291,9 +295,17 @@ class UserViewModel @Inject constructor(
                 fileOutputStream.write(profileImageBytes)
                 Log.d(TAG, "Profile pictures saved to: ${file.absolutePath}")
 
+                return Uri.fromFile(file).toString()
             }
         } catch (e: IOException) {
             Log.e(TAG, "Error saving profile picture:${e.message}")
         }
+        return null
+
+    }
+
+    // Notify the UI that the user list has changed
+    private fun notifyUserListChanged() {
+
     }
 }
