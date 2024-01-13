@@ -23,10 +23,11 @@ fun Navigation(
 
 
     val routesToHideInBottomNavBar = listOf(
-        Screen.Register.route,
-        Screen.Login.route,
-        Screen.Profile.route
-    )
+        "${Screen.Register.route}/{name}",
+        "${Screen.Login.route}/{name}",
+        Screen.Profile.route,
+
+        )
 //    val currentBackStackEntry: NavBackStackEntry? = navController.currentBackStackEntry
 
     Scaffold(
@@ -51,7 +52,10 @@ fun Navigation(
                 }
             )
         ) { entry ->
-            Login(navController = navController, name = entry.arguments?.getString("name"))
+            Login(
+                navController = navController,
+                name = entry.arguments?.getString("name")
+            )
         }
         // register
         composable(
