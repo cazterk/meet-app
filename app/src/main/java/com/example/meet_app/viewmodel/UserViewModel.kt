@@ -8,7 +8,11 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,6 +35,7 @@ import com.google.android.gms.nearby.connection.Strategy
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -38,6 +43,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
+
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
@@ -49,8 +55,8 @@ class UserViewModel @Inject constructor(
     private val _currentUser = MutableLiveData<UserEntity>()
     val currentUser: LiveData<UserEntity> = _currentUser
 
-    private val _discoveredUsers = mutableStateListOf<UserEntity>()
-    val discoveredUsers: List<UserEntity> get() = _discoveredUsers
+    private val _discoveredUsers = MutableStateFlow<List<UserEntity>>(emptyList())
+    val discoveredUsers: MutableStateFlow<List<UserEntity>> get() = _discoveredUsers
 
     private val nearByShareClient = Nearby.getConnectionsClient(application)
 
@@ -67,6 +73,35 @@ class UserViewModel @Inject constructor(
                 print("get user error" + e.message)
             }
         }
+    }
+
+    fun addDiscoveredUser(user: UserEntity) {
+        val updatedList = _discoveredUsers.value.toMutableList()
+
+        val existingUser = updatedList.any { it.id == user.id }
+        if (!existingUser) {
+            updatedList.add(user)
+            updatedList.add(user)
+            _discoveredUsers.value = updatedList
+            Log.d("UserViewModel", "Discovered user added: ${user.firstName} ${user.lastName}")
+        } else {
+            Log.d(
+                "UserViewModel",
+                "Discovered user already exists: ${user.firstName} ${user.lastName}"
+            )
+        }
+
+        Log.d("UserViewModel", "Discovered users: ${_discoveredUsers.value}")
+    }
+
+    fun startNearbyConnections() {
+        startAdvertising()
+        startDiscovery()
+    }
+
+    fun stopNearbyConnections() {
+        stopAdvertising()
+        stopDiscovery()
     }
 
     fun updateProfileImage(userId: String, profileImage: String) {
@@ -186,7 +221,7 @@ class UserViewModel @Inject constructor(
                         val receivedUser =
                             Gson().fromJson(userDataJon.toString(), UserEntity::class.java)
 
-                        var profilePictureBase64 = payloadData.getString("profile_picture")
+                        val profilePictureBase64 = payloadData.getString("profile_picture")
                         val profilePictureBytes =
                             Base64.decode(profilePictureBase64, Base64.DEFAULT)
 
@@ -198,13 +233,7 @@ class UserViewModel @Inject constructor(
                         }
 
                         // Check if the received user already exists in the list based on their ID
-                        when (_discoveredUsers.find { it.id == receivedUser.id }) {
-                            null -> {
-                                _discoveredUsers.add(receivedUser)
-                            }
-
-                            else -> {}
-                        }
+                        addDiscoveredUser(receivedUser)
 
 
                     } catch (e: JsonParseException) {
@@ -244,6 +273,11 @@ class UserViewModel @Inject constructor(
             }
 
             val profilePictureBytes = profilePictureBitmap?.let { bitmapToByteArray(it) }
+
+            if (profilePictureBytes == null || profilePictureBytes.isEmpty()) {
+                Log.e(TAG, "Profile picture bytes are null or empty, skipping encoding")
+                return@launch
+            }
 
             val payloadData = JSONObject()
             payloadData.put("user_data", JSONObject(currentUserJson))
@@ -286,7 +320,7 @@ class UserViewModel @Inject constructor(
 
     private fun saveProfilePictureToStorage(
         userId: String,
-        profileImageBytes: ByteArray
+        profileImageBytes: ByteArray,
     ): String? {
         try {
             val fileName = "profile_profile_$userId.jpg"

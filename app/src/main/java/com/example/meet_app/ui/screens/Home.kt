@@ -30,6 +30,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.meet_app.R
 import com.example.meet_app.api.user.UserEntity
@@ -148,18 +150,15 @@ fun Home(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.width(8.dp))
-                    Image(
+                    AsyncImage(
+                        model = currentUser?.profileImage ?: R.drawable.profile_image_placeholder,
                         modifier = Modifier
                             .size(65.dp)
                             .clip(shape = CircleShape)
                             .clickable {
                                 navController.navigate(Screen.Profile.route)
                             },
-                        painter = (if (currentUser?.profileImage != null) {
-                            rememberAsyncImagePainter(currentUser?.profileImage)
-                        } else {
-                            painterResource(R.drawable.profile_image_placeholder)
-                        }),
+
                         contentScale = ContentScale.Crop,
                         contentDescription = "Image"
                     )
@@ -227,9 +226,9 @@ fun Home(
                             onCheckedChange = { isChecked ->
                                 isVisibilityEnabled = isChecked
                                 if (isChecked) {
-                                    userViewModel.startAdvertising()
+                                    userViewModel.startNearbyConnections()
                                 } else {
-                                    userViewModel.stopAdvertising()
+                                    userViewModel.startNearbyConnections()
                                 }
                             },
                             thumbContent = {
@@ -261,7 +260,7 @@ fun Home(
                                 navController.navigate(Screen.Messages.route)
                             })
                         {
-                            Text(text = "Message")
+                            Text(text = "Messages")
                         }
 
                     }
@@ -277,30 +276,6 @@ fun Home(
 
 
 @Composable
-fun Connections(userView: UserViewModel = hiltViewModel()) {
-    LaunchedEffect(Unit) {
-
-    }
-    val connections = userView.discoveredUsers
-
-
-    Column {
-
-        if (connections.isNotEmpty())
-            LazyColumn {
-                items(connections) { connection ->
-                    ConnectionItem(connection = connection)
-
-                }
-            }
-        else {
-            Text(text = "No Possible Connections Nearby")
-        }
-
-    }
-}
-
-@Composable
 fun ConnectionItem(connection: UserEntity) {
     val date = "01/01/2021"
     Column(
@@ -314,15 +289,13 @@ fun ConnectionItem(connection: UserEntity) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             connection.profileImage?.let {
-                Image(
+                AsyncImage(
+                    model = connection.profileImage
+                        ?: R.drawable.profile_image_placeholder,
                     modifier = Modifier
                         .size(65.dp)
                         .clip(shape = CircleShape),
-                    painter = (if (connection?.profileImage != null) {
-                        rememberAsyncImagePainter(it)
-                    } else {
-                        painterResource(R.drawable.profile_image_placeholder)
-                    }),
+
                     contentScale = ContentScale.Crop,
                     contentDescription = "Image"
 
@@ -372,3 +345,33 @@ fun ConnectionItem(connection: UserEntity) {
 }
 
 
+@Composable
+fun Connections(userView: UserViewModel = hiltViewModel()) {
+    LaunchedEffect(Unit) {
+    }
+//    val connections = userView.discoveredUsers
+    val connections by userView.discoveredUsers.collectAsState()
+
+    Column {
+
+        when {
+            connections.isEmpty() -> {
+                Text(text = "No Possible Connections Nearby")
+            }
+
+
+            else -> {
+                LazyColumn {
+                    items(connections) { connection ->
+                        ConnectionItem(connection = connection)
+
+                    }
+                }
+
+            }
+
+
+        }
+
+    }
+}

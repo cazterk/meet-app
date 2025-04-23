@@ -44,7 +44,7 @@ object AppModule {
             .build()
 
         return Retrofit.Builder()
-            .baseUrl("http://192.168.250.120:8080/")
+            .baseUrl("https://meetapp-ktor-backend.onrender.com/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -52,7 +52,7 @@ object AppModule {
 
     }
 
-    // roomdb method
+    // room db method
     @Provides
     @Singleton
     fun provideRoomDatabase(application: Application): AppDatabase {
